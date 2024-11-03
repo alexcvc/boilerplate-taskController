@@ -49,7 +49,7 @@
  * @return The success status of the operation. Returns true if the error file was incremented successfully
  *         or already exists, false otherwise.
  ******************************************************************************/
-bool app::AppContext::validate_path(const std::string& path, const std::string& desc) const {
+bool app::AppContext::ValidatePath(const std::string& path, const std::string& desc) const {
   std::cout << "Application context: Validating path: " << path << std::endl;
 
   if (!path.empty()) {
@@ -70,27 +70,14 @@ bool app::AppContext::validate_path(const std::string& path, const std::string& 
  * the boolean value 'false'.
  * If an error occurs during the validation process, the method returns an empty optional.
  ******************************************************************************/
-std::optional<bool> app::AppContext::validate_configuration(const app::DaemonConfig& config) {
+std::optional<bool> app::AppContext::ValidateConfig(const app::DaemonConfig& config) {
   int errorCount{0};
 
   std::cout << "Application context: Validating the configuration" << std::endl;
 
-  m_pathConfigFile = config.pathConfigFile;
-  m_pathConfigFolder = config.pathConfigFolder;
-  m_pathLogFile = config.logFile;
+  m_configFile = config.configFile;
 
-  /*
-   * Use the validatePath function to validate all paths.
-   */
-  if (!validate_path(m_pathConfigFolder, "Configuration Folder")) {
-    errorCount++;
-  }
-
-  if (!validate_path(m_pathConfigFile, "Configuration file")) {
-    errorCount++;
-  }
-
-  if (!validate_path(m_pathLogFile, "Log File")) {
+  if (!ValidatePath(m_configFile, "Configuration file")) {
     errorCount++;
   }
 
@@ -114,7 +101,7 @@ std::optional<bool> app::AppContext::validate_configuration(const app::DaemonCon
 * contains the boolean value 'false'. If an error occurs during the reconfiguration
 * process, the method returns an empty optional.
  ******************************************************************************/
-std::optional<bool> app::AppContext::process_reconfigure() {
+std::optional<bool> app::AppContext::ProcessReconfigure() {
   std::cout << "Application context: Reconfiguring the application" << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(1));
   return true;
@@ -125,7 +112,7 @@ std::optional<bool> app::AppContext::process_reconfigure() {
  * @return An optional boolean value indicating if the process restart was successful.
  *         Returns std::nullopt if failed, otherwise returns true.
  ******************************************************************************/
-std::optional<bool> app::AppContext::process_restart() {
+std::optional<bool> app::AppContext::ProcessRestart() {
   std ::cout << "Application context: Restarting the application" << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(1));
   return true;
@@ -136,7 +123,7 @@ std::optional<bool> app::AppContext::process_restart() {
  * @return An optional boolean value indicating if the process was successful.
  *         Returns std::nullopt if failed, otherwise returns true.
  ******************************************************************************/
-std::optional<bool> app::AppContext::process_user1() {
+std::optional<bool> app::AppContext::ProcessSignalUser1() {
   std::cout << "Application context: get and process the USER1 signal" << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(1));
   return true;
@@ -147,7 +134,7 @@ std::optional<bool> app::AppContext::process_user1() {
  * @return An optional boolean value indicating if the process was successful.
  *         Returns std::nullopt if failed, otherwise returns true.
  ******************************************************************************/
-std::optional<bool> app::AppContext::process_user2() {
+std::optional<bool> app::AppContext::ProcessSignalUser2() {
   std::cout << "Application context: get and process the USER2 signal" << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(1));
   return true;
@@ -158,7 +145,7 @@ std::optional<bool> app::AppContext::process_user2() {
  * \return An optional boolean value indicating if the process start was successful.
  *         Returns std::nullopt if failed, otherwise returns true.
  ******************************************************************************/
-std::optional<bool> app::AppContext::process_start() {
+std::optional<bool> app::AppContext::ProcessStart() {
   std ::cout << "Application context: Start the application" << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(1));
   return true;
@@ -169,7 +156,7 @@ std::optional<bool> app::AppContext::process_start() {
  * @return An optional boolean value indicating the success of the shutdown process.
  *         The optional value will be empty if the shutdown process encountered an error.
  ******************************************************************************/
-std::optional<bool> app::AppContext::process_shutdown() {
+std::optional<bool> app::AppContext::ProcessShutdown() {
   std ::cout << "Application context: Shutting down the application" << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(1));
   return true;
@@ -180,7 +167,7 @@ std::optional<bool> app::AppContext::process_shutdown() {
  * @param min_duration minimum duration until next processing.
  * @return The earlier timeout until next process.
  ******************************************************************************/
-std::chrono::milliseconds app::AppContext::process_executing(const std::chrono::milliseconds& min_duration) {
+std::chrono::milliseconds app::AppContext::ProcessExecuting(const std::chrono::milliseconds& min_duration) {
   std::cout << "Processing the context. Minimal duration: " << min_duration.count() << " ms" << std::endl;
   return min_duration > std::chrono::milliseconds(5000) ? std::chrono::milliseconds(1000)
                                                         : min_duration + std::chrono::milliseconds(1000);

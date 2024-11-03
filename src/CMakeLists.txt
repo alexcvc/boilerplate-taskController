@@ -46,14 +46,15 @@ add_executable(${TargetName}
 )
 
 target_include_directories(${TargetName} PRIVATE
+   ${CMAKE_CURRENT_SOURCE_DIR}/../include
    ${SPDLOG_HEADERS_DIR}
    ${FMT_HEADERS_DIR}
    ${CMAKE_CURRENT_BINARY_DIR}
-   "${CMAKE_CURRENT_SOURCE_DIR}/../include"
 )
 
 find_package(fmt)
-target_link_libraries(${TargetName} PRIVATE fmt::fmt-header-only spdlog::spdlog_header_only Threads::Threads)
+#target_link_libraries(${TargetName} PRIVATE fmt::fmt-header-only spdlog::spdlog_header_only Threads::Threads)
+target_link_libraries(${TargetName} PRIVATE Threads::Threads)
 
 # post build copy optional
 if ((NOT ${CMAKE_POSTBUILD_OUTPUT_DIRECTORY}) AND (IS_DIRECTORY ${CMAKE_POSTBUILD_OUTPUT_DIRECTORY}))

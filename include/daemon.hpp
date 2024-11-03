@@ -47,7 +47,7 @@ class Daemon {
    * @brief Starts the daemon.
    * @return True if the daemon is started, false otherwise.
    */
-  [[nodiscard]] std::optional<bool> start_all() {
+  [[nodiscard]] std::optional<bool> StartAll() {
     m_state = State::running;
     if (m_handlerBeforeToStart) {
       return m_handlerBeforeToStart();
@@ -59,7 +59,7 @@ class Daemon {
    * @brief Reloads the daemon.
    * @return True if the daemon is reloaded, false otherwise.
    */
-  [[nodiscard]] std::optional<bool> reload_all() {
+  [[nodiscard]] std::optional<bool> ReloadAll() {
     m_state = State::reload;
     return std::nullopt;
   }
@@ -68,7 +68,7 @@ class Daemon {
    * @brief Closes the daemon.
    * @return True if the daemon is closed, false otherwise.
    */
-  [[nodiscard]] std::optional<bool> close_all() {
+  [[nodiscard]] std::optional<bool> CloseAll() {
     m_state = State::stop;
     if (m_handlerBeforeToExit) {
       return m_handlerBeforeToExit();
@@ -80,7 +80,7 @@ class Daemon {
    * @brief Sets the function to be called before the daemon starts.
    * @param func The function to be called.
    */
-  void set_start_function(std::function<std::optional<bool>()> func) {
+  void SetStartFunction(std::function<std::optional<bool>()> func) {
     m_handlerBeforeToStart = func;
   }
 

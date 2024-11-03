@@ -57,23 +57,23 @@ class IAppContext {
    * @return std::optional<bool> true if successful, otherwise false.
    * Not defined return value means that the function is not implemented.
    */
-  [[nodiscard]] virtual std::optional<bool> validate_configuration(const app::DaemonConfig& config) = 0;
+  [[nodiscard]] virtual std::optional<bool> ValidateConfig(const app::DaemonConfig& config) = 0;
 
   /**
    * @brief Process everything before reconfiguring the application
    * @return std::optional<bool> true if successful to start, otherwise false.
    * Not defined return value means that the function is not implemented.
    */
-  [[nodiscard]] virtual std::optional<bool> process_reconfigure() = 0;
+  [[nodiscard]] virtual std::optional<bool> ProcessReconfigure() = 0;
 
   /**
    * @brief Process everything before starting the application
    * @return std::optional<bool> true if successful to start, otherwise false.
    * Not defined return value means that the function is not implemented.
    */
-  [[nodiscard]] virtual std::optional<bool> process_start() = 0;
-  [[nodiscard]] static std::optional<bool> process_start(IAppContext& self) {
-    return self.process_start();
+  [[nodiscard]] virtual std::optional<bool> ProcessStart() = 0;
+  [[nodiscard]] static std::optional<bool> ProcessStart(IAppContext& self) {
+    return self.ProcessStart();
   }
 
   /**
@@ -81,9 +81,9 @@ class IAppContext {
    * @return std::optional<bool> true if successful to start, otherwise false.
    * Not defined return value means that the function is not implemented.
    */
-  [[nodiscard]] virtual std::optional<bool> process_restart() = 0;
-  [[nodiscard]] static std::optional<bool> process_restart(IAppContext& self) {
-    return self.process_restart();
+  [[nodiscard]] virtual std::optional<bool> ProcessRestart() = 0;
+  [[nodiscard]] static std::optional<bool> ProcessRestart(IAppContext& self) {
+    return self.ProcessRestart();
   }
 
   /**
@@ -91,9 +91,9 @@ class IAppContext {
    * @return std::optional<bool> true if successful to start, otherwise false.
    * Not defined return value means that the function is not implemented.
    */
-  [[nodiscard]] virtual std::optional<bool> process_user1() = 0;
-  [[nodiscard]] static std::optional<bool> process_user1(IAppContext& self) {
-    return self.process_user1();
+  [[nodiscard]] virtual std::optional<bool> ProcessSignalUser1() = 0;
+  [[nodiscard]] static std::optional<bool> ProcessSignalUser1(IAppContext& self) {
+    return self.ProcessSignalUser1();
   }
 
   /**
@@ -101,9 +101,9 @@ class IAppContext {
    * @return std::optional<bool> true if successful to start, otherwise false.
    * Not defined return value means that the function is not implemented.
    */
-  [[nodiscard]] virtual std::optional<bool> process_user2() = 0;
-  [[nodiscard]] static std::optional<bool> process_user2(IAppContext& self) {
-    return self.process_user2();
+  [[nodiscard]] virtual std::optional<bool> ProcessSignalUser2() = 0;
+  [[nodiscard]] static std::optional<bool> ProcessSignalUser2(IAppContext& self) {
+    return self.ProcessSignalUser2();
   }
 
   /**
@@ -111,9 +111,9 @@ class IAppContext {
    * @return std::optional<bool> true if successful to start, otherwise false.
    * Not defined return value means that the function is not implemented.
    */
-  [[nodiscard]] virtual std::optional<bool> process_shutdown() = 0;
-  [[nodiscard]] static std::optional<bool> process_shutdown(IAppContext& self) {
-    return self.process_shutdown();
+  [[nodiscard]] virtual std::optional<bool> ProcessShutdown() = 0;
+  [[nodiscard]] static std::optional<bool> ProcessShutdown(IAppContext& self) {
+    return self.ProcessShutdown();
   }
 
   /**
@@ -121,10 +121,10 @@ class IAppContext {
    * @param min_duration minimum duration until next processing.
    * @return The earlier timeout until next process.
    */
-  [[nodiscard]] virtual std::chrono::milliseconds process_executing(const std::chrono::milliseconds& min_duration) = 0;
-  [[nodiscard]] static std::chrono::milliseconds process_executing(IAppContext& self,
-                                                                   const std::chrono::milliseconds& min_duration) {
-    return self.process_executing(min_duration);
+  [[nodiscard]] virtual std::chrono::milliseconds ProcessExecuting(const std::chrono::milliseconds& min_duration) = 0;
+  [[nodiscard]] static std::chrono::milliseconds ProcessExecuting(IAppContext& self,
+                                                                  const std::chrono::milliseconds& min_duration) {
+    return self.ProcessExecuting(min_duration);
   }
 };
 

@@ -61,16 +61,3 @@ void threadTask(size_t index, std::stop_token stopToken) {
   }
   spdlog::warn("Thread <{}> is stopping.", index);
 }
-
-int main() {
-  ThreadController controller;
-
-  controller.startThreads(threadTask, NUM_THREADS);
-
-  std::this_thread::sleep_for(std::chrono::seconds(3));
-
-  controller.stopAll();
-
-  std::cout << "All threads stopped." << std::endl;
-  return 0;
-}

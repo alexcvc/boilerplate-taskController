@@ -230,47 +230,31 @@ handleConsoleType handle_console() {
  * @desc Threads cannot always actively monitor a stop token.
  * @param lptr - log appender
  * @param cfg_converter - configuration
- * @param token - stop task token
+ * @param stopToken - stop task token
  *****************************************************************************/
-void TaskAppContextFunc(app::AppContext& app_context, app::DaemonConfig& daemon_config, std::stop_token token) {
+void AppContextWorker(app::AppContext& app_context, app::DaemonConfig& daemon_config, std::stop_token stopToken) {
   auto sooner = 1000ms;
 
   // Register a stop callback
-  std::stop_callback stop_cb(token, [&]() {
+  std::stop_callback stop_cb(stopToken, [&]() {
     // Wake thread on stop request
     daemon_event.event_condition.notify_all();
   });
 
   spdlog::info("application task started");
 
-  while (true) {
+  while (!stopToken.stop_requested()) {
     spdlog::info("application task ticks {} ms", sooner.count());
     // observe serves states
-    sooner = app_context.process_executing(sooner);
+    sooner = app_context.ProcessExecuting(sooner);
     if (sooner.count() > 0) {
       // Start of locked block
       std::unique_lock lck(daemon_event.event_mutex);
       daemon_event.event_condition.wait_for(lck, std::chrono::milliseconds(sooner));
     }
-
-    //Stop if requested to stop
-    if (token.stop_requested()) {
-      spdlog::info("stop requested for an application task");
-      break;
-    }
   }  // End of while loop
 
-  spdlog::info("application task completed");
-}
-
-/*************************************************************************/ /**
- * @brief Check and exit on error
- *****************************************************************************/
-void check_and_exit_on_error(std::optional<bool> result, const std::string& error_message) {
-  if (result.has_value() && !result.value()) {
-    spdlog::warn(error_message + ". Exit");
-    exit(EXIT_FAILURE);
-  }
+  spdlog::info("application context got stop token. Application task completed");
 }
 
 /*************************************************************************/ /**
@@ -282,8 +266,6 @@ int main(int argc, char** argv) {
   app::Daemon& daemon = app::Daemon::instance();
   app::DaemonConfig appConfig;  ///< The configuration of the daemon
   app::AppContext appContext;   ///< The application context
-  std::stop_source stop_src;    ///< stop token for the main loop
-  std::thread taskAppContext;
 
   //----------------------------------------------------------
   // parse parameters
@@ -293,49 +275,44 @@ int main(int argc, char** argv) {
   //----------------------------------------------------------
   // set in daemon all handlers
   //----------------------------------------------------------
-  daemon.set_start_function([&]() {
+  daemon.SetStartFunction([&]() {
     spdlog::info("Start all function called.");
-    return appContext.process_start();
+    return appContext.ProcessStart();
   });
 
   // Set the stop all function
   daemon.set_close_function([&]() {
     spdlog::info("Close all function called.");
-    return appContext.process_shutdown();
+    return appContext.ProcessShutdown();
   });
 
   daemon.set_reload_function([&]() {
     spdlog::info("Reload function called.");
-    return appContext.process_reconfigure();
+    return appContext.ProcessReconfigure();
   });
 
   daemon.set_user1_function([&]() {
     spdlog::info("User1 function called.");
-    return appContext.process_user1();
+    return appContext.ProcessSignalUser1();
   });
 
   daemon.set_user2_function([&]() {
     spdlog::info("User2 function called.");
-    return appContext.process_user2();
+    return appContext.ProcessSignalUser2();
   });
 
   //----------------------------------------------------------
   // Check integrity this configuration
   //----------------------------------------------------------
-  check_and_exit_on_error(appContext.validate_configuration(appConfig), "configuration mismatch");
-
-  // //----------------------------------------------------------
-  // // Prepare application to start
-  // //----------------------------------------------------------
-  // if (auto res = appContext.process_start(); res.has_value() && !res.value()) {
-  //   spdlog::warn("prepare the application for task start failed. Exit");
-  //   exit(EXIT_FAILURE);
-  // }
+  if (auto result = appContext.ValidateConfig(appConfig); result.has_value() && !result.value()) {
+    spdlog::warn("AppContext configuration mismatch. Exit");
+    exit(EXIT_FAILURE);
+  }
 
   //----------------------------------------------------------
   // Start all
   //----------------------------------------------------------
-  if (auto result = daemon.start_all(); result.has_value() && !result.value()) {
+  if (auto result = daemon.StartAll(); result.has_value() && !result.value()) {
     spdlog::warn("Error starting the daemon.");
     return EXIT_FAILURE;
   }
@@ -350,9 +327,13 @@ int main(int argc, char** argv) {
   //----------------------------------------------------------
   // start application task
   //----------------------------------------------------------
+  // Create a stop_source
+  std::stop_source stopSource;
+  // Get a stop_token from the stop_source
+  std::stop_token stopToken = stopSource.get_token();
   // Create all workers and pass stop tokens
-  taskAppContext =
-      std::move(std::thread(TaskAppContextFunc, std::ref(appContext), std::ref(appConfig), stop_src.get_token()));
+std::thread taskAppCtx =
+      std::move(std::thread(AppContextWorker, std::ref(appContext), std::ref(appConfig), stopSource.get_token()));
 
   //----------------------------------------------------------
   // Main loop
@@ -382,7 +363,7 @@ int main(int argc, char** argv) {
   }
 
   // set token to stop all worker
-  stop_src.request_stop();
+  stopSource.request_stop();
 
   spdlog::info("The daemon process is stopping");
 
@@ -395,9 +376,9 @@ int main(int argc, char** argv) {
   spdlog::info("Waiting for the application task to complete");
 
   // Join threads
-  taskAppContext.join();
+  taskAppCtx.join();
 
-  if (auto result = daemon.close_all(); result.has_value() && !result.value()) {
+  if (auto result = daemon.CloseAll(); result.has_value() && !result.value()) {
     spdlog::error("Error closing the daemon.");
     return EXIT_FAILURE;
   }

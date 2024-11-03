@@ -28,9 +28,7 @@ namespace app {
  */
 class AppContext : public IAppContext {
   // Private Variables
-  std::filesystem::path m_pathConfigFile;    ///< The path of the configuration file
-  std::filesystem::path m_pathConfigFolder;  ///< The path of the configuration folder
-  std::filesystem::path m_pathLogFile;       ///< The path of the log file
+  std::filesystem::path m_configFile;  ///< The path of the configuration file
 
  public:
   /// constructor
@@ -44,62 +42,62 @@ class AppContext : public IAppContext {
    * @param config The configuration of the daemon to validate.
    * @return An optional boolean value.
    */
-  [[nodiscard]] std::optional<bool> validate_configuration(const app::DaemonConfig& config) override;
+  [[nodiscard]] std::optional<bool> ValidateConfig(const app::DaemonConfig& config) override;
 
   /**
    * @brief Process everything before reconfiguring the application.
    * @return std::optional<bool> true if the process completes successfully, otherwise false.
    */
-  [[nodiscard]] std::optional<bool> process_reconfigure() override;
+  [[nodiscard]] std::optional<bool> ProcessReconfigure() override;
 
   /**
    * @brief Process everything before starting the application.
    * @return std::optional<bool> - true if the process_start is successful, false otherwise.
    * If the method is not implemented, the return value is not defined.
    */
-  [[nodiscard]] std::optional<bool> process_start() override;
+  [[nodiscard]] std::optional<bool> ProcessStart() override;
 
   /**
    * @brief Process everything before restarting the application
    * @return std::optional<bool> - true if the restart process was successful, false otherwise.
    * @note This function is pure virtual and must be implemented by the derived class.
    */
-  [[nodiscard]] std::optional<bool> process_restart() override;
+  [[nodiscard]] std::optional<bool> ProcessRestart() override;
 
   /**
    * @brief Process everything after USER1 signal
    * @return std::optional<bool> true if successful to start, otherwise false.
    * Not defined return value means that the function is not implemented.
    */
-  [[nodiscard]] std::optional<bool> process_user1() override;
+  [[nodiscard]] std::optional<bool> ProcessSignalUser1() override;
 
   /**
    * @brief Process everything after USER2 signal
    * @return std::optional<bool> true if successful to start, otherwise false.
    * Not defined return value means that the function is not implemented.
    */
-  [[nodiscard]] std::optional<bool> process_user2() override;
+  [[nodiscard]] std::optional<bool> ProcessSignalUser2() override;
 
   /**
    * @brief Performs a graceful shutdown of the application.
    * @return An optional boolean value indicating the success of the shutdown process.
    *         The optional value will be empty if the shutdown process encountered an error.
    */
-  [[nodiscard]] std::optional<bool> process_shutdown() override;
+  [[nodiscard]] std::optional<bool> ProcessShutdown() override;
 
   /**
    * @brief processing the context.
    * @param min_duration minimum duration until next processing.
    * @return The earlier timeout until next process.
    */
-  [[nodiscard]] std::chrono::milliseconds process_executing(const std::chrono::milliseconds& min_duration) override;
+  [[nodiscard]] std::chrono::milliseconds ProcessExecuting(const std::chrono::milliseconds& min_duration) override;
 
   /**
    * @brief Set the path of the configuration file.
    * @param path The path of the configuration file.
    * @return true if the path exists or empty, otherwise false.
    */
-  [[nodiscard]] bool validate_path(const std::string& path, const std::string& desc) const;
+  [[nodiscard]] bool ValidatePath(const std::string& path, const std::string& desc) const;
 };
 
 }  // namespace app

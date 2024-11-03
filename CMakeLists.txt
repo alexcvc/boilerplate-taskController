@@ -79,7 +79,7 @@ configure_file("${CMAKE_SOURCE_DIR}/.cmake/version.hpp.in" "${CMAKE_BINARY_DIR}/
 #######################################################
 
 ### submodules
-set(SPDLOG_FMT_EXTERNAL TRUE)
+#set(SPDLOG_FMT_EXTERNAL TRUE)
 
 add_subdirectory(subModules)
 
