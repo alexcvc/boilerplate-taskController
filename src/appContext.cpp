@@ -144,12 +144,35 @@ std::optional<bool> app::AppContext::ProcessSignalUser2() {
 std::optional<bool> app::AppContext::ProcessStart() {
   std::cout << "Application context: Start the application" << std::endl;
 
+  // Start a task that prints a message every second
   m_taskManager.StartTask([](const TaskManager& manager, std::stop_token stopToken) {
     while (!stopToken.stop_requested()) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-      spdlog::info("Working in thread...");
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      std::cout << "Task 1 is running..." << std::endl;
     }
-    spdlog::warn("Thread is stopping.");
+    std::cout << "Task 1 is stopping." << std::endl;
+  });
+
+  // Start a task that prints a custom message every second
+  m_taskManager.StartTask(
+      [](const TaskManager& manager, std::stop_token stopToken, const std::string& message) {
+        while (!stopToken.stop_requested()) {
+          std::this_thread::sleep_for(std::chrono::seconds(1));
+          std::cout << message << std::endl;
+        }
+        std::cout << "Task 2 is stopping." << std::endl;
+      },
+      "Custom task 2 is running...");
+
+  // Start a task that performs a complex calculation every second
+  m_taskManager.StartTask([](const TaskManager& manager, std::stop_token stopToken) {
+    int counter = 0;
+    while (!stopToken.stop_requested()) {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      counter += 1;
+      std::cout << "Task 3 Complex calculation result: " << counter * counter << std::endl;
+    }
+    std::cout << "Task 3 is stopping." << std::endl;
   });
 
   return true;
@@ -162,7 +185,10 @@ std::optional<bool> app::AppContext::ProcessStart() {
  ******************************************************************************/
 std::optional<bool> app::AppContext::ProcessShutdown() {
   std::cout << "Application context: Shutting down the application" << std::endl;
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+
+  // Stop all tasks
+  m_taskManager.StopAllTasks();
+
   return true;
 }
 

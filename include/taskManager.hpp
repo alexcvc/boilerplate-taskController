@@ -62,11 +62,12 @@ class TaskManager {
   void StartTask(Function&& func, Args&&... args) {
     auto id = m_taskId++;
     std::stop_source stopSource;
-    m_threads.emplace(id, std::jthread(
-                              [&func, this](auto&&... innerArgs) {
-                                func(*this, std::forward<decltype(innerArgs)>(innerArgs)...);
-                              },
-                              std::forward<Args>(args)..., stopSource.get_token()));
+    m_threads.emplace(std::piecewise_construct, std::forward_as_tuple(id),
+                      std::forward_as_tuple(
+                          [&func, &args...](const TaskManager& manager, std::stop_token stopToken) {
+                            func(manager, stopToken, args...);
+                          },
+                          std::cref(*this), stopSource.get_token()));
     m_stopSources.emplace_back(std::move(stopSource));
   }
 
