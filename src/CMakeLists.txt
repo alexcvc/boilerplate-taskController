@@ -18,20 +18,10 @@ find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 
 ### List of CPP (source) library files.
-set(${TargetName}_SRC
-   "appContext.cpp"
-   "daemon.cpp"
-   "main.cpp"
-   "taskController.cpp"
-)
+file(GLOB_RECURSE ${TargetName}_SRC *.cpp)
 
 ### List of HPP (header) library files.
-set(${TargetName}_HDR
-   "${CMAKE_CURRENT_SOURCE_DIR}/../include/appContext.hpp"
-   "${CMAKE_CURRENT_SOURCE_DIR}/../include/appContextBase.hpp"
-   "${CMAKE_CURRENT_SOURCE_DIR}/../include/daemon.hpp"
-   "${CMAKE_CURRENT_SOURCE_DIR}/../include/daemonConfig.hpp"
-)
+file(GLOB_RECURSE ${TargetName}_HDR ${CMAKE_CURRENT_SOURCE_DIR}/../include/*.h*)
 
 # Make a version file containing the hash and date from git.
 configure_file("${CMAKE_SOURCE_DIR}/.cmake/version.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/version.cpp")

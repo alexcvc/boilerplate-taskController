@@ -20,6 +20,7 @@
 #include <mutex>
 
 #include "appContextBase.hpp"
+#include "taskManager.hpp"
 
 namespace app {
 
@@ -29,6 +30,7 @@ namespace app {
 class AppContext : public IAppContext {
   // Private Variables
   std::filesystem::path m_configFile;  ///< The path of the configuration file
+  TaskManager m_taskManager;           ///< The task manager
 
  public:
   /// constructor

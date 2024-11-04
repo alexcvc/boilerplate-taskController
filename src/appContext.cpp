@@ -10,12 +10,8 @@
 #include "appContext.hpp"
 
 #include <chrono>
-#include <fstream>
 #include <iostream>
-#include <regex>
 #include <thread>
-
-#include <fmt/chrono.h>
 
 //-----------------------------------------------------------------------------
 // includes
@@ -113,7 +109,7 @@ std::optional<bool> app::AppContext::ProcessReconfigure() {
  *         Returns std::nullopt if failed, otherwise returns true.
  ******************************************************************************/
 std::optional<bool> app::AppContext::ProcessRestart() {
-  std ::cout << "Application context: Restarting the application" << std::endl;
+  std::cout << "Application context: Restarting the application" << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(1));
   return true;
 }
@@ -146,8 +142,16 @@ std::optional<bool> app::AppContext::ProcessSignalUser2() {
  *         Returns std::nullopt if failed, otherwise returns true.
  ******************************************************************************/
 std::optional<bool> app::AppContext::ProcessStart() {
-  std ::cout << "Application context: Start the application" << std::endl;
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::cout << "Application context: Start the application" << std::endl;
+
+  m_taskManager.StartTask([](const TaskManager& manager, std::stop_token stopToken) {
+    while (!stopToken.stop_requested()) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      spdlog::info("Working in thread...");
+    }
+    spdlog::warn("Thread is stopping.");
+  });
+
   return true;
 }
 
@@ -157,7 +161,7 @@ std::optional<bool> app::AppContext::ProcessStart() {
  *         The optional value will be empty if the shutdown process encountered an error.
  ******************************************************************************/
 std::optional<bool> app::AppContext::ProcessShutdown() {
-  std ::cout << "Application context: Shutting down the application" << std::endl;
+  std::cout << "Application context: Shutting down the application" << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(1));
   return true;
 }
