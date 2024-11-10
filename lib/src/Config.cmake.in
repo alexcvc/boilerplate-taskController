@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+
+# Find required dependencies
+find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
+
+pkg_search_module(PROCPS REQUIRED libproc2 libprocps)
+pkg_check_modules(PROCPS REQUIRED ${PROCPS_MODULE_NAME})
+
+include ( "${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake" )
