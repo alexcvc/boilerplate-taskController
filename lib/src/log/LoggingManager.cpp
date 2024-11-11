@@ -42,14 +42,13 @@ bool LogManager::openLogger(spdlog::level::level_enum level) {
     if (!m_logSp)
       throw spdlog::spdlog_ex("no logging manager instance created");
 
-    m_logSp->set_level(level);
-
     // or you can even set multi_sink logger as default logger
     if (m_logSp->sinks().empty()) {
-      if (!add_console_sink(OutputLog::err, Colored::color, level)) {
-        throw spdlog::spdlog_ex("cannot add console sink");
-      }
+      throw spdlog::spdlog_ex("no sinks added to logger");
     }
+
+    m_logSp->set_level(level);
+
     // register logger
     spdlog::register_logger(m_logSp);
     return true;

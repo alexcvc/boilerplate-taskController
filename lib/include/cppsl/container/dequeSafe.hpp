@@ -129,13 +129,18 @@ class DequeSafe {
    *
    * @param value A reference to store the popped element.
    */
-  [[maybe_unused]] void wait_and_pop_front(TypeElement& value) {
+  [[maybe_unused]] bool wait_and_pop_front(TypeElement& value,
+                                           std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) {
     std::unique_lock<std::mutex> lk(m_semaphore);
-    m_condition.wait(lk, [this] {
+    m_condition.wait_for(lk, timeout, [this] {
       return !m_container.empty();
     });
+    if (m_container.empty()) {
+      return false;
+    }
     value = m_container.front();
     m_container.pop_front();
+    return true;
   }
 
   /**
@@ -147,13 +152,18 @@ class DequeSafe {
    *
    * @param value A reference to store the popped element.
    */
-  [[maybe_unused]] void wait_and_pop_back(TypeElement& value) {
+  [[maybe_unused]] bool wait_and_pop_back(TypeElement& value,
+                                          std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) {
     std::unique_lock<std::mutex> lk(m_semaphore);
-    m_condition.wait(lk, [this] {
+    m_condition.wait_for(lk, timeout, [this] {
       return !m_container.empty();
     });
+    if (m_container.empty()) {
+      return false;
+    }
     value = m_container.back();
     m_container.pop_back();
+    return true;
   }
 
   /**
@@ -165,9 +175,10 @@ class DequeSafe {
    *
    * @return A shared pointer to the first element of the deque.
    */
-  [[maybe_unused]] std::shared_ptr<TypeElement> wait_and_pop_front() {
+  [[maybe_unused]] std::shared_ptr<TypeElement> wait_and_pop_front(
+      std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) {
     std::unique_lock<std::mutex> lk(m_semaphore);
-    m_condition.wait(lk, [this] {
+    m_condition.wait_for(lk, timeout, [this] {
       return !m_container.empty();
     });
     std::shared_ptr<TypeElement> res(std::make_shared<TypeElement>(m_container.front()));
@@ -184,9 +195,10 @@ class DequeSafe {
    *
    * @return A shared pointer to the last element of the deque.
    */
-  [[maybe_unused]] std::shared_ptr<TypeElement> wait_and_pop_back() {
+  [[maybe_unused]] std::shared_ptr<TypeElement> wait_and_pop_back(
+      std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) {
     std::unique_lock<std::mutex> lk(m_semaphore);
-    m_condition.wait(lk, [this] {
+    m_condition.wait_for(lk, timeout, [this] {
       return !m_container.empty();
     });
     std::shared_ptr<TypeElement> res(std::make_shared<TypeElement>(m_container.back()));

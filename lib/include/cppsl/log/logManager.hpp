@@ -73,11 +73,36 @@ class LogManager final {
     * @param name - logging name. It is useful, if you want to serve logger by name instead shared pointer
     */
   LogManager() {
+    m_name = "logman";
     m_logSp = std::make_shared<spdlog::logger>(m_name);
   }
 
   explicit LogManager(std::string_view name) : m_name(name) {
     m_logSp = std::make_shared<spdlog::logger>(m_name);
+  }
+
+  // Copy constructor
+  LogManager(const LogManager& other) : m_name(other.m_name), m_logSp(other.m_logSp) {}
+
+  // Move constructor
+  LogManager(LogManager&& other) noexcept : m_name(std::move(other.m_name)), m_logSp(std::move(other.m_logSp)) {}
+
+  // Copy assignment operator
+  LogManager& operator=(const LogManager& other) {
+    if (this != &other) {
+      m_name = other.m_name;
+      m_logSp = other.m_logSp;
+    }
+    return *this;
+  }
+
+  // Move assignment operator
+  LogManager& operator=(LogManager&& other) noexcept {
+    if (this != &other) {
+      m_name = std::move(other.m_name);
+      m_logSp = std::move(other.m_logSp);
+    }
+    return *this;
   }
 
   /**
@@ -95,6 +120,13 @@ class LogManager final {
     return m_name;
   }
 
+  const std::shared_ptr<spdlog::logger>& logPtr() const {
+    return m_logSp;
+  }
+
+  void setMLogSp(const std::shared_ptr<spdlog::logger>& mLogSp) {
+    m_logSp = mLogSp;
+  }
   /**
    * @brief Gets the number of sinks in the LogManager.
    * @return The number of sinks in the LogManager, or 0 if the LogManager has no log pointer.

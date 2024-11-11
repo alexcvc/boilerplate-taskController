@@ -76,4 +76,63 @@ TEST_CASE("DequeSafe operations", "[DequeSafe]") {
       t.join();
     REQUIRE(deque.empty());
   }
+
+  SECTION("Wait and pop timeout") {
+    std::chrono::milliseconds timeout(100);
+    int value;
+    REQUIRE_FALSE(deque.wait_and_pop_front(value, timeout));
+  }
+
+  SECTION("Order preservation") {
+    std::vector<int> input = {1, 2, 3, 4, 5};
+    for (int val : input) {
+      deque.push_back(val);
+    }
+
+    std::vector<int> output;
+    int value;
+    while (deque.try_pop_front(value)) {
+      output.push_back(value);
+    }
+    REQUIRE(input == output);
+  }
+
+  SECTION("Enhanced thread safety") {
+    std::vector<std::thread> threads;
+    const int iterations = 1000;
+    const int expected_sum = (iterations * (iterations - 1)) / 2;  // Sum of 0 to iterations-1
+    std::atomic<int> sum{0};
+
+    // Multiple producers
+    for (int t = 0; t < 2; ++t) {
+      threads.emplace_back([&, t]() {
+        for (int i = t * (iterations / 2); i < (t + 1) * (iterations / 2); ++i) {
+          if (i % 2 == 0)
+            deque.push_back(i);
+          else
+            deque.push_front(i);
+        }
+      });
+    }
+
+    // Multiple consumers
+    for (int t = 0; t < 2; ++t) {
+      threads.emplace_back([&]() {
+        int value;
+        for (int i = 0; i < iterations / 2; ++i) {
+          if (i % 2 == 0)
+            deque.wait_and_pop_front(value);
+          else
+            deque.wait_and_pop_back(value);
+          sum += value;
+        }
+      });
+    }
+
+    for (auto& t : threads)
+      t.join();
+
+    REQUIRE(deque.empty());
+    REQUIRE(sum == expected_sum);
+  }
 }
