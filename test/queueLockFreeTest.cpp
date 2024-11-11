@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch_all.hpp>
+#include "catch.hpp"
 #include "cppsl/container/queueLockFree.hpp"
 
 TEST_CASE("queueLockFree operations", "[queueLockFree]") {

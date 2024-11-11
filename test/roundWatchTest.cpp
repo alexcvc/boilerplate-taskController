@@ -1,8 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include <thread>
 
-#include <catch2/catch_all.hpp>
-
+#include "catch.hpp"
 #include "cppsl/time/roundWatch.hpp"
 
 using namespace cppsl::time;

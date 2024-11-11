@@ -1,6 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch_all.hpp>
-
+#include "catch.hpp"
 #include "cppsl/container/dequeSafe.hpp"
 
 TEST_CASE("DequeSafe operations", "[DequeSafe]") {
@@ -50,5 +49,31 @@ TEST_CASE("DequeSafe operations", "[DequeSafe]") {
 
     REQUIRE(deque.empty());
     REQUIRE(deque.size() == 0);
+  }
+
+  SECTION("Thread safety") {
+    std::vector<std::thread> threads;
+    const int iterations = 1000;
+    std::atomic<int> sum{0};
+
+    // Producer thread
+    threads.emplace_back([&]() {
+      for (int i = 0; i < iterations; ++i) {
+        deque.push_back(i);
+      }
+    });
+
+    // Consumer thread
+    threads.emplace_back([&]() {
+      int value;
+      for (int i = 0; i < iterations; ++i) {
+        deque.wait_and_pop_front(value);
+        sum += value;
+      }
+    });
+
+    for (auto& t : threads)
+      t.join();
+    REQUIRE(deque.empty());
   }
 }

@@ -1,6 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch_all.hpp>
-
+#include "catch.hpp"
 #include "cppsl/buffer/circularBuffer.hpp"
 
 using namespace cppsl::buffer;
