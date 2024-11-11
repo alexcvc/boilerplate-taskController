@@ -19,3 +19,5 @@ IncludeCategories:
     Priority: 2
   - Regex: '"'
     Priority: 4
+#
+SortIncludes: CaseSensitive

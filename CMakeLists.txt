@@ -13,7 +13,7 @@ set(PROJECT_VERSION_DESCRIPTION "Test and probes")
 ### Options
 option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" OFF)
 option(BUILD_DOC "Build documentation" OFF)
-option(BUILD_TEST "Build test-applications" OFF)
+option(BUILD_TEST "Build test-applications" ON)
 
 # Defines the CMAKE_INSTALL_LIBDIR, CMAKE_INSTALL_BINDIR and many other useful macros.
 include(GNUInstallDirs)
@@ -82,6 +82,9 @@ configure_file("${CMAKE_SOURCE_DIR}/.cmake/version.hpp.in" "${CMAKE_BINARY_DIR}/
 #set(SPDLOG_FMT_EXTERNAL TRUE)
 
 add_subdirectory(subModules)
+
+### library C++ support library
+add_subdirectory(lib)
 
 ### application.
 add_subdirectory(src)
