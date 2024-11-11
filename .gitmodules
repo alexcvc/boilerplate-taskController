@@ -4,6 +4,3 @@
 [submodule "spdlog"]
 	path = subModules/spdlog
 	url = https://github.com/gabime/spdlog.git
-[submodule "cppsl"]
-	path = subModules/cppsl
-	url = https://github.com/alexcvc/cppsl.git
