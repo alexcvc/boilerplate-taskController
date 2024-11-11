@@ -22,7 +22,8 @@ namespace cppsl::threading {
 template <typename Func, typename... Args>
 class ScopedFwdThread {
  public:
-  ScopedFwdThread(Func&& func, Args&&... args) : m_thread(std::forward<Func>(func), std::forward<Args>(args)...) {}
+  explicit ScopedFwdThread(Func&& func, Args&&... args)
+      : m_thread(std::forward<Func>(func), std::forward<Args>(args)...) {}
 
   ~ScopedFwdThread() {
     join();
@@ -40,7 +41,7 @@ class ScopedFwdThread {
     * @brief Check if the thread is terminated.
     * @return True if the thread is terminated, false otherwise.
     */
-  bool isTerminated() const {
+  [[nodiscard]] bool isTerminated() const {
     return m_terminated;
   }
 

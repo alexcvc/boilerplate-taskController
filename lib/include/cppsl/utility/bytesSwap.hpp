@@ -31,26 +31,32 @@ namespace cppsl::utility {
 class bytesSwap {
  public:
   enum class SwapType {
-    BE,  // swap for big endian machines
-    LE,  // swap for little endian machines
-    AX,  // swap always, for f... strange float cases
-    NX   // swap never, for f... strange float cases
+    BE,  ///< Swap bytes on big-endian machines to maintain compatibility
+    LE,  ///< Swap bytes on little-endian machines to maintain compatibility
+    AX,  ///< Always swap bytes regardless of platform endian
+    NX   ///< Never swap bytes, preserve original byte order
   };
 
   /**
-   * @brief A class for swapping bytes based on the endianness
-   *
-   * This class provides a static method for swapping bytes in a value based on the endianness of the machine,
-   * as well as an enum class for specifying the swap type.
-   */
-  template <typename T>
-  static T Swap(T val, SwapType swapType) {
+  * @brief Swaps bytes of a value based on endianness requirements
+  * @tparam T Trivially copyable type (integral, floating-point, or standard layout)
+  * @param val Value to swap
+  * @param swapType Endianness conversion type
+  * @return Byte-swapped value if required by SwapType
+  * @throws std::invalid_argument if T is not suitable for byte swapping
+  */
+  template static std::enable_if_t, T > static T Swap(T val, SwapType swapType) {
+    static_assert(std::is_trivially_copyable_v, "T must be trivially copyable for byte swapping");
+
     if (swapType == SwapType::NX) {
       return val;
     }
 
     T ret = val;
-    auto ptr = reinterpret_cast<uint8_t*>(&ret);
+    // Ensure properly aligned access
+    std::aligned_storage_t storage;
+    std::memcpy(&storage, &ret, sizeof(T));
+    auto ptr = reinterpret_cast(&storage);
     const auto size = sizeof(T);
 
     if constexpr (std::endian::native == std::endian::big) {
@@ -61,6 +67,7 @@ class bytesSwap {
         swapBytes(ptr, size);
     }
 
+    std::memcpy(&ret, &storage, sizeof(T));
     return ret;
   }
 

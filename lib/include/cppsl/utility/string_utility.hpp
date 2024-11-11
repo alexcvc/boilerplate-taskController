@@ -136,8 +136,8 @@ constexpr TypeOutput HexStringToBytes(const char (&Input)[Length]) {
  * @return True if the value is within the range, false otherwise.
  */
 template <typename T>
-bool IsInRange(const T& value, const T& low, const T& high) noexcept {
-  return !(value < low) && !(high < value);
+[[maybe_unused]] bool IsInRange(const T& value, const T& low, const T& high) noexcept {
+  return value >= low && high >= value;
 }
 
 /**
@@ -157,7 +157,7 @@ bool IsInRange(const T& value, const T& low, const T& high) noexcept {
  * @return Returns true if the value is within the range, false otherwise.
  */
 template <typename T, typename R, typename Comparator>
-bool IsInRange(const T& value, const R& low, const R& high, Comparator comp) {
+[[maybe_unused]] bool IsInRange(const T& value, const R& low, const R& high, Comparator comp) {
   return !comp(value, low) && comp(value, high);
 }
 
@@ -222,7 +222,7 @@ bool IsInRange(const T& value, const R& low, const R& high, Comparator comp) {
  *         respectively, to be less than, to match, or be greater than str2.
  */
 template <typename T>
-int StrCmpCSafe(T* str1, T* str2) noexcept {
+[[maybe_unused]] int StrCmpCSafe(T* str1, T* str2) noexcept {
   if (str1 == nullptr && str2 == nullptr) {
     return 0;
   } else if (str1 == nullptr) {
@@ -255,7 +255,7 @@ int StrCmpCSafe(T* str1, T* str2) noexcept {
  * @see std::copy
  */
 template <typename CharT>
-std::unique_ptr<CharT[]> StrDupSafeUnique(const CharT* str) {
+[[maybe_unused]] std::unique_ptr<CharT[]> StrDupSafeUnique(const CharT* str) {
   if (!str) {
     return nullptr;  // Handle null string input
   }
@@ -287,7 +287,7 @@ std::unique_ptr<CharT[]> StrDupSafeUnique(const CharT* str) {
  * @note If memory allocation fails, the function returns nullptr.
  */
 template <typename CharT>
-CharT* StrDupSafe(const CharT* str) noexcept {
+[[maybe_unused]] CharT* StrDupSafe(const CharT* str) noexcept {
   if (!str) {
     return nullptr;  // Handle null string input
   }
@@ -296,7 +296,7 @@ CharT* StrDupSafe(const CharT* str) noexcept {
   size_t totalLen = len + 1;
 
   try {
-    CharT* copiedStr = new CharT[totalLen];
+    auto copiedStr = new CharT[totalLen];
     std::copy(str, str + len, copiedStr);
     copiedStr[len] = CharT();  // Null-terminate the new string
     return copiedStr;
@@ -310,11 +310,11 @@ CharT* StrDupSafe(const CharT* str) noexcept {
  * @param str The input string from which leading whitespaces should be removed.
  * @return A new string with leading whitespaces removed.
  */
-[[nodiscard, maybe_unused]] static std::string ltrim(const std::string& str) {
+[[nodiscard, maybe_unused]] static std::string TrimLeadingWhitespaces(const std::string& str) {
   auto start = std::find_if_not(str.begin(), str.end(), [](unsigned char ch) {
     return std::isspace(ch);
   });
-  return std::string(start, str.end());
+  return {start, str.end()};
 }
 
 /**
@@ -322,11 +322,11 @@ CharT* StrDupSafe(const CharT* str) noexcept {
  * @param str The input string to be trimmed.
  * @return A new string with trailing whitespaces removed.
  */
-[[nodiscard, maybe_unused]] static std::string rtrim(const std::string& str) {
+[[nodiscard, maybe_unused]] static std::string TrimTrailingWhitespaces(const std::string& str) {
   auto end = std::find_if(str.rbegin(), str.rend(), [](unsigned char ch) {
                return !std::isspace(ch);
              }).base();
-  return std::string(str.begin(), end);
+  return {str.begin(), end};
 }
 
 /**
@@ -334,7 +334,7 @@ CharT* StrDupSafe(const CharT* str) noexcept {
  * @param str The input string that needs to be trimmed.
  * @return A new string with leading and trailing whitespaces removed.
  */
-[[nodiscard, maybe_unused]] static std::string trim(const std::string& str) {
+[[nodiscard, maybe_unused]] static std::string TrimWhitespace(const std::string& str) {
   auto start = std::find_if_not(str.begin(), str.end(), [](unsigned char ch) {
     return std::isspace(ch);
   });
@@ -355,7 +355,7 @@ CharT* StrDupSafe(const CharT* str) noexcept {
  * std::string sAddr=
  *    "$CHK:SameVal:Off=3:BIT=5:VAL=0; $CHK:InBand:Off=104:INT8:MIN=-64:MAX=64:RISE=2:LOWER=1; "
  *    "$ACK:AckAny:Off=104:INT8:LATCH:VAL=0; $ERR:SameVal:Off=3:BIT=4:VAL=1}";
- *     std::vector<std::string> tokens = splitString(input, "; \t\n\r");
+ *     std::vector<std::string> tokens = SplitString(input, "; \t\n\r");
  *
  * // Print the tokens
  * for (const auto& token : tokens) {
@@ -368,7 +368,8 @@ CharT* StrDupSafe(const CharT* str) noexcept {
  *  [$ACK:AckAny:Off=104:INT8:LATCH:VAL=0]
  *  [$ERR:SameVal:Off=3:BIT=4:VAL=1]
  */
-[[nodiscard, maybe_unused]] static std::vector<std::string> splitString(const std::string& str, const std::string& delimiters) {
+[[nodiscard, maybe_unused]] static std::vector<std::string> SplitString(const std::string& str,
+                                                                        const std::string& delimiters) {
   std::vector<std::string> tokens;
   size_t start = 0;
   size_t end = 0;

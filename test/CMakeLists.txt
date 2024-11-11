@@ -4,7 +4,15 @@ find_package(Catch2 REQUIRED)
 enable_testing()
 
 # Add the test sources
-file(GLOB SOURCE_FILES *.cpp)
+# Add the test sources explicitly
+set(SOURCE_FILES
+   circularBufferTest.cpp
+   dequeSafeTest.cpp
+   logManagerTest.cpp
+   queueLockFreeTest.cpp
+   roundWatchTest.cpp
+)
+
 
 # For each source file a test target is created
 foreach (SOURCE_PATH ${SOURCE_FILES})

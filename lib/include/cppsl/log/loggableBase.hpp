@@ -14,7 +14,7 @@
 //
 #include <memory>
 
-#include <cppsl/log/LogManager.hpp>
+#include "logManager.hpp"
 
 //----------------------------------------------------------------------------
 // Public defines and macros
@@ -39,13 +39,17 @@ class LoggableBase {
   /// @brief Constructor
   ///
   /// @param appenderPtr A shared pointer to a log appender
-  explicit LoggableBase(cppsl::log::LogManagerPtr appenderPtr) : m_logPtr(appenderPtr) {}
+  explicit LoggableBase(cppsl::log::LogManagerPtr appenderPtr) : m_logPtr(appenderPtr) {
+    if (!appenderPtr) {
+      throw std::invalid_argument("Log manager pointer cannot be null");
+    }
+  }
 
   /// @brief Destructor
   virtual ~LoggableBase() = default;
 
   /// @brief Pointer to the log appender
-  cppsl::log::LogManagerPtr m_logPtr;
+  [[maybe_unused]] cppsl::log::LogManagerPtr m_logPtr;
 };
 
 }  // namespace cppsl::log

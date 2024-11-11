@@ -127,13 +127,13 @@ template <typename T>
 struct ResultVarVal : protected std::variant<std::monostate, T> {
   explicit constexpr ResultVarVal() noexcept = default;
 
-  constexpr ResultVarVal(const T& t) noexcept : std::variant<std::monostate, T>{t} {}
+  constexpr explicit ResultVarVal(const T& t) noexcept : std::variant<std::monostate, T>{t} {}
 
   /**
    * @brief Checks if the ResultVarVal object holds a valid value.
    * @return Returns true if the ResultVarVal object holds a valid value, false otherwise.
    */
-  constexpr bool valid() const noexcept {
+  [[nodiscard]] constexpr bool valid() const noexcept {
     return holds_value();
   }
 
@@ -141,7 +141,7 @@ struct ResultVarVal : protected std::variant<std::monostate, T> {
     * @brief Checks if the ResultVarVal object is valid.
     * @return True if the object is invalid, false otherwise.
     */
-  constexpr bool invalid() const noexcept {
+  [[nodiscard]] constexpr bool invalid() const noexcept {
     return !holds_value();
   }
 
@@ -155,7 +155,7 @@ struct ResultVarVal : protected std::variant<std::monostate, T> {
   }
 
  private:
-  constexpr bool holds_value() const noexcept {
+  [[nodiscard]] constexpr bool holds_value() const noexcept {
     return std::holds_alternative<T>(*this);
   }
 };
@@ -186,7 +186,7 @@ template <typename T>
 struct ResultOptional : protected std::optional<T> {
   explicit constexpr ResultOptional() noexcept = default;
 
-  constexpr ResultOptional(T const& t) noexcept : std::optional<T>{t} {}
+  constexpr explicit ResultOptional(T const& t) noexcept : std::optional<T>{t} {}
 
   [[nodiscard]] constexpr bool isValid() const noexcept {
     return hasValue();

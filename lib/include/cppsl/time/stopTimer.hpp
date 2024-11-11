@@ -68,7 +68,7 @@ class StopTimer {
    * @brief stop running
    * @details reset running flag and reset start point in timer
    */
-  void Reset() noexcept {
+  [[maybe_unused]] virtual void Reset() noexcept {
     m_is_running = false;
     m_start_point = {};
   }
@@ -77,7 +77,7 @@ class StopTimer {
    * @brief stop running
    * @details stop running only without reset start point
    */
-  void Stop() noexcept {
+  [[maybe_unused]] void Stop() noexcept {
     m_is_running = false;
   }
 

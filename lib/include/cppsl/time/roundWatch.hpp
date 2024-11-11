@@ -25,8 +25,8 @@ namespace cppsl::time {
  */
 template <typename duration = std::chrono::milliseconds>
 class RoundWatch : public StopTimer<duration> {
-  using ClockType = typename StopTimer<duration>::Clock;
-  using TimePointType = typename StopTimer<duration>::TimePoint;
+  using ClockType [[maybe_unused]] = typename StopTimer<duration>::Clock;
+  using TimePointType [[maybe_unused]] = typename StopTimer<duration>::TimePoint;
 
  public:
   RoundWatch() = default;
@@ -40,7 +40,7 @@ class RoundWatch : public StopTimer<duration> {
    */
   struct LapDurations {
     duration total_time;
-    duration split_time;
+    [[maybe_unused]] duration split_time;
   };
 
   /**
@@ -50,7 +50,7 @@ class RoundWatch : public StopTimer<duration> {
     * by subtracting the previous lap's total time from the current total time. It then stores
     * the calculated lap duration in a vector (lap_durations_).
     */
-  void StoreLap() {
+  [[maybe_unused]] void StoreLap() {
     if (StopTimer<duration>::IsRunning()) {
       lap_durations_.push_back(CalculateCurrentLapDuration());
     }
@@ -64,7 +64,7 @@ class RoundWatch : public StopTimer<duration> {
    *
    * @see Laps()
    */
-  void Reset() noexcept {
+  [[maybe_unused]] virtual void Reset() noexcept {
     lap_durations_.clear();
   }
 
@@ -73,7 +73,7 @@ class RoundWatch : public StopTimer<duration> {
    *
    * @return The const reference to the vector of lap durations.
    */
-  const std::vector<LapDurations>& Laps() const {
+  [[maybe_unused]] const std::vector<LapDurations>& Laps() const {
     return lap_durations_;
   }
 

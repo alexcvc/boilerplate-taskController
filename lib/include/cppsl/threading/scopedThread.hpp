@@ -28,7 +28,7 @@ class ScopedThreadForwarding {
   /**
    * @brief move constructor.
    */
-  ScopedThreadForwarding(ScopedThreadForwarding&& other) {
+  ScopedThreadForwarding(ScopedThreadForwarding&& other) noexcept {
     m_thread = std::move(other.m_thread);
   }
 
@@ -83,7 +83,7 @@ class ScopedThreadForwarding {
    * @brief Get the thread identifier of the ScopedThread object.
    * @return The thread identifier of the underlying thread.
    */
-  auto get_id() const {
+  [[nodiscard]] auto get_id() const {
     return m_thread.get_id();
   }
 

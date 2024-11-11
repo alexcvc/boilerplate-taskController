@@ -113,8 +113,8 @@ inline std::tuple<Double, Double> TimePntToSecondsAndFractional(const TimePoint&
  */
 inline void FormatTimeToStream(std::ostringstream& oss, const std::tm* tm, const std::string& dateFormat,
                                double fractionalSeconds, std::size_t precision) {
-  oss << std::put_time(tm, dateFormat.c_str()) << std::setw(precision + 3) << std::setfill('0') << std::fixed
-      << std::setprecision(precision) << tm->tm_sec + fractionalSeconds;
+  oss << std::put_time(tm, dateFormat.c_str()) << std::setw(static_cast<int>(precision) + 3) << std::setfill('0')
+      << std::fixed << std::setprecision(static_cast<int>(precision)) << tm->tm_sec + fractionalSeconds;
 }
 
 /**
@@ -132,10 +132,10 @@ inline void FormatTimeToStream(std::ostringstream& oss, const std::tm* tm, const
  */
 template <typename Double = double, std::size_t Precision = std::numeric_limits<Double>::digits10, typename TimePoint>
   requires std::is_floating_point_v<Double> && (Precision <= std::numeric_limits<Double>::digits10)
-inline std::string TimePointToString(const TimePoint& timePoint) {
+[[maybe_unused]] inline std::string TimePointToString(const TimePoint& timePoint) {
   const std::string dateFormat = "%Y-%b-%d %H:%M:";
   const auto [wholeSeconds, fractionalSeconds] = TimePntToSecondsAndFractional<Double, TimePoint>(timePoint);
-  std::time_t tt = static_cast<std::time_t>(wholeSeconds);
+  auto tt = static_cast<std::time_t>(wholeSeconds);
 
   std::ostringstream oss;
   auto tm = std::localtime(&tt);
@@ -159,7 +159,7 @@ inline std::string TimePointToString(const TimePoint& timePoint) {
  * @throws std::invalid_argument If the input string is in an invalid format.
  */
 template <typename TimePoint>
-TimePoint TimePointFromString(const std::string& str) {
+[[maybe_unused]] TimePoint TimePointFromString(const std::string& str) {
   const std::string dateTimeFormat = "%Y-%b-%d %H:%M:%S";
 
   std::istringstream inputStream{str};
@@ -185,8 +185,8 @@ TimePoint TimePointFromString(const std::string& str) {
                                     std::chrono::high_resolution_clock::period::num);
   };
 
-  std::size_t zeconds = calculateFractionalSeconds(fractionalSeconds);
-  return timePoint += std::chrono::high_resolution_clock::duration(zeconds);
+  std::size_t seconds = calculateFractionalSeconds(fractionalSeconds);
+  return timePoint += std::chrono::high_resolution_clock::duration(seconds);
 }
 
 }  // namespace cppsl::time

@@ -1,10 +1,10 @@
-/* SPDX-License-Identifier: MIT */
+// SPDX-License-Identifier: MIT
 
-/*************************************************************************/ /**
- * \file
- * @brief  contains cyclic buffer template lock free thread-safe.
+/**
+ * @file
+ * @brief Contains a lock-free, thread-safe circular buffer template.
  * @ingroup C++ support library
- *****************************************************************************/
+ */
 
 #pragma once
 
@@ -14,15 +14,14 @@
 
 namespace cppsl::buffer {
 
-template <typename T>
 /**
+ * @class CircularBuffer
  * @brief A thread-safe circular buffer implementation.
  * @tparam T The type of items stored in the buffer.
- * @param size The size of the circular buffer. Must be a power of 2.
- * @throws std::invalid_argument if the size is not a power of 2.
  */
+template <typename T>
 class CircularBuffer {
-  const size_t m_capacity;           ///< The size of the circular buffer.
+  const size_t m_capacity{16};       ///< The size of the circular buffer.
   std::vector<T> m_buffer;           ///< The buffer storing the items.
   std::atomic<size_t> m_readIndex;   ///< The read index for the circular buffer.
   std::atomic<size_t> m_writeIndex;  ///< The write index for the circular buffer.
@@ -32,10 +31,9 @@ class CircularBuffer {
    * @brief Constructor: Ensures the size is a power of 2 and initializes the buffer and indices.
    * @param size The size of the circular buffer. Must be a power of 2.
    * @throws std::invalid_argument if the size is not a power of 2.
-   * @return An instance of CircularBuffer.
    */
   explicit CircularBuffer(size_t size = 16)
-      : m_capacity(nextPowerOf2(size)), m_buffer(m_capacity), m_readIndex(0), m_writeIndex(0) {
+      : m_capacity(nextPowerOf2(size)), m_buffer(nextPowerOf2(size)), m_readIndex(0), m_writeIndex(0) {
     if ((m_capacity & (m_capacity - 1)) != 0) {
       throw std::invalid_argument("Size must be a power of 2");
     }
@@ -47,7 +45,6 @@ class CircularBuffer {
    * The method uses relaxed memory ordering for reading and releasing memory, and
    * acquire memory ordering for acquiring memory.
    *
-   * @tparam T The type of items stored in the buffer.
    * @param item The item to be added to the circular buffer.
    * @return true if the item was successfully added to the buffer, false if the buffer is full.
    */
@@ -71,7 +68,6 @@ class CircularBuffer {
    * The pop method removes the next item from the circular buffer if it is not empty.
    * The method uses relaxed memory ordering for reading and acquiring memory ordering for releasing memory.
    *
-   * @tparam T The type of items stored in the buffer.
    * @param item A reference to the variable where the popped item will be stored.
    * @return true if an item was successfully popped from the buffer, false if the buffer is empty.
    */
@@ -120,7 +116,6 @@ class CircularBuffer {
    * current read index. It uses the readIndex_ and writeIndex_ atomic variables to perform the comparison.
    * The method uses the acquire memory ordering for reading the index values.
    *
-   * @tparam T The type of items stored in the buffer.
    * @return true if the circular buffer is full, false otherwise.
    */
   [[nodiscard]] bool full() const {
@@ -187,7 +182,7 @@ class CircularBuffer {
    * @param index The index to be incremented.
    * @return The incremented index within the circular buffer.
    */
-  size_t increment(size_t index) const {
+  [[nodiscard]] size_t increment(size_t index) const {
     return (index + 1) & (m_capacity - 1);
   }
 };

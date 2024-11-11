@@ -76,7 +76,7 @@ class LogManager final {
     m_logSp = std::make_shared<spdlog::logger>(m_name);
   }
 
-  LogManager(std::string_view name) : m_name(name) {
+  explicit LogManager(std::string_view name) : m_name(name) {
     m_logSp = std::make_shared<spdlog::logger>(m_name);
   }
 
@@ -207,7 +207,7 @@ class LogManager final {
     * calls flush() on each logger.
     * @param interval_seconds - interval in seconds
     */
-  void flush_every(std::chrono::seconds& interval_seconds) noexcept {
+  [[maybe_unused]] static void flush_every(std::chrono::seconds& interval_seconds) noexcept {
     spdlog::flush_every(std::chrono::seconds(interval_seconds));
   }
 
@@ -221,7 +221,7 @@ class LogManager final {
     }
   }
 
-  spdlog::level::level_enum level() const noexcept {
+  [[nodiscard]] spdlog::level::level_enum level() const noexcept {
     if (m_logSp) {
       return m_logSp->level();
     }
@@ -246,21 +246,21 @@ class LogManager final {
   // trace
   //----------------------------------------------------------
   template <typename... Args>
-  inline void trace(fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void trace(fmt::format_string<Args...> fmt, Args&&... args) {
     if (m_logSp) {
       m_logSp->trace(fmt, std::forward<Args>(args)...);
     }
   }
 
   template <typename T>
-  inline void trace(const T& msg) {
+  [[maybe_unused]] inline void trace(const T& msg) {
     if (m_logSp) {
       m_logSp->trace(msg);
     }
   }
 
   template <typename... Args>
-  inline void trace_if(bool flag, fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void trace_if(bool flag, fmt::format_string<Args...> fmt, Args&&... args) {
     if (flag) {
       if (m_logSp) {
         m_logSp->trace(fmt, std::forward<Args>(args)...);
@@ -269,7 +269,7 @@ class LogManager final {
   }
 
   template <typename T>
-  inline void trace_if(bool flag, const T& msg) {
+  [[maybe_unused]] inline void trace_if(bool flag, const T& msg) {
     if (flag) {
       if (m_logSp) {
         m_logSp->trace(msg);
@@ -278,7 +278,7 @@ class LogManager final {
   }
 
   template <typename... Args>
-  inline void trace_name(const std::string& name, fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void trace_name(const std::string& name, fmt::format_string<Args...> fmt, Args&&... args) {
     auto logPtr = spdlog::get(name);
     if (logPtr) {
       logPtr->trace(fmt, std::forward<Args>(args)...);
@@ -286,7 +286,7 @@ class LogManager final {
   }
 
   template <typename T>
-  inline void trace_name(const std::string& name, const T& msg) {
+  [[maybe_unused]] inline void trace_name(const std::string& name, const T& msg) {
     std::shared_ptr<spdlog::logger> logPtr = spdlog::get(name);
     if (logPtr) {
       // logging to multi-sink logger
@@ -298,21 +298,21 @@ class LogManager final {
   // debug
   //----------------------------------------------------------
   template <typename... Args>
-  inline void debug(fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void debug(fmt::format_string<Args...> fmt, Args&&... args) {
     if (m_logSp) {
       m_logSp->debug(fmt, std::forward<Args>(args)...);
     }
   }
 
   template <typename T>
-  inline void debug(const T& msg) {
+  [[maybe_unused]] inline void debug(const T& msg) {
     if (m_logSp) {
       m_logSp->debug(msg);
     }
   }
 
   template <typename... Args>
-  inline void debug_if(bool flag, fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void debug_if(bool flag, fmt::format_string<Args...> fmt, Args&&... args) {
     if (flag) {
       if (m_logSp) {
         m_logSp->debug(fmt, std::forward<Args>(args)...);
@@ -321,7 +321,7 @@ class LogManager final {
   }
 
   template <typename T>
-  inline void debug_if(bool flag, const T& msg) {
+  [[maybe_unused]] inline void debug_if(bool flag, const T& msg) {
     if (flag) {
       if (m_logSp) {
         m_logSp->debug(msg);
@@ -330,7 +330,7 @@ class LogManager final {
   }
 
   template <typename... Args>
-  inline void debug_name(const std::string& name, fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void debug_name(const std::string& name, fmt::format_string<Args...> fmt, Args&&... args) {
     auto logPtr = spdlog::get(name);
     if (logPtr) {
       logPtr->debug(fmt, std::forward<Args>(args)...);
@@ -338,7 +338,7 @@ class LogManager final {
   }
 
   template <typename T>
-  inline void debug_name(const std::string& name, const T& msg) {
+  [[maybe_unused]] inline void debug_name(const std::string& name, const T& msg) {
     std::shared_ptr<spdlog::logger> logPtr = spdlog::get(name);
     if (logPtr) {
       // logging to multi-sink logger
@@ -351,21 +351,21 @@ class LogManager final {
   //----------------------------------------------------------
 
   template <typename... Args>
-  inline void info(fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void info(fmt::format_string<Args...> fmt, Args&&... args) {
     if (m_logSp) {
       m_logSp->info(fmt, std::forward<Args>(args)...);
     }
   }
 
   template <typename T>
-  inline void info(const T& msg) {
+  [[maybe_unused]] inline void info(const T& msg) {
     if (m_logSp) {
       m_logSp->info(msg);
     }
   }
 
   template <typename... Args>
-  inline void info_if(bool flag, fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void info_if(bool flag, fmt::format_string<Args...> fmt, Args&&... args) {
     if (flag) {
       if (m_logSp) {
         m_logSp->info(fmt, std::forward<Args>(args)...);
@@ -374,7 +374,7 @@ class LogManager final {
   }
 
   template <typename T>
-  inline void info_if(bool flag, const T& msg) {
+  [[maybe_unused]] inline void info_if(bool flag, const T& msg) {
     if (flag) {
       if (m_logSp) {
         m_logSp->info(msg);
@@ -383,7 +383,7 @@ class LogManager final {
   }
 
   template <typename... Args>
-  inline void info_name(const std::string& name, fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void info_name(const std::string& name, fmt::format_string<Args...> fmt, Args&&... args) {
     auto logPtr = spdlog::get(name);
     if (logPtr) {
       logPtr->info(fmt, std::forward<Args>(args)...);
@@ -391,7 +391,7 @@ class LogManager final {
   }
 
   template <typename T>
-  inline void info_name(const std::string& name, const T& msg) {
+  [[maybe_unused]] inline void info_name(const std::string& name, const T& msg) {
     std::shared_ptr<spdlog::logger> logPtr = spdlog::get(name);
     if (logPtr) {
       // logging to multi-sink logger
@@ -403,21 +403,21 @@ class LogManager final {
   // warn
   //----------------------------------------------------------
   template <typename... Args>
-  inline void warn(fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void warn(fmt::format_string<Args...> fmt, Args&&... args) {
     if (m_logSp) {
       m_logSp->warn(fmt, std::forward<Args>(args)...);
     }
   }
 
   template <typename T>
-  inline void warn(const T& msg) {
+  [[maybe_unused]] inline void warn(const T& msg) {
     if (m_logSp) {
       m_logSp->warn(msg);
     }
   }
 
   template <typename... Args>
-  inline void warn_if(bool flag, fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void warn_if(bool flag, fmt::format_string<Args...> fmt, Args&&... args) {
     if (flag) {
       if (m_logSp) {
         m_logSp->warn(fmt, std::forward<Args>(args)...);
@@ -426,7 +426,7 @@ class LogManager final {
   }
 
   template <typename T>
-  inline void warn_if(bool flag, const T& msg) {
+  [[maybe_unused]] inline void warn_if(bool flag, const T& msg) {
     if (flag) {
       if (m_logSp) {
         m_logSp->warn(msg);
@@ -435,7 +435,7 @@ class LogManager final {
   }
 
   template <typename... Args>
-  inline void warn_name(const std::string& name, fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void warn_name(const std::string& name, fmt::format_string<Args...> fmt, Args&&... args) {
     auto logPtr = spdlog::get(name);
     if (logPtr) {
       logPtr->warn(fmt, std::forward<Args>(args)...);
@@ -443,7 +443,7 @@ class LogManager final {
   }
 
   template <typename T>
-  inline void warn_name(const std::string& name, const T& msg) {
+  [[maybe_unused]] inline void warn_name(const std::string& name, const T& msg) {
     std::shared_ptr<spdlog::logger> logPtr = spdlog::get(name);
     if (logPtr) {
       // logging to multi-sink logger
@@ -455,21 +455,21 @@ class LogManager final {
   // error
   //----------------------------------------------------------
   template <typename... Args>
-  inline void error(fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void error(fmt::format_string<Args...> fmt, Args&&... args) {
     if (m_logSp) {
       m_logSp->error(fmt, std::forward<Args>(args)...);
     }
   }
 
   template <typename T>
-  inline void error(const T& msg) {
+  [[maybe_unused]] inline void error(const T& msg) {
     if (m_logSp) {
       m_logSp->error(msg);
     }
   }
 
   template <typename... Args>
-  inline void error_if(bool flag, fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void error_if(bool flag, fmt::format_string<Args...> fmt, Args&&... args) {
     if (flag) {
       if (m_logSp) {
         m_logSp->error(fmt, std::forward<Args>(args)...);
@@ -478,7 +478,7 @@ class LogManager final {
   }
 
   template <typename T>
-  inline void error_if(bool flag, const T& msg) {
+  [[maybe_unused]] inline void error_if(bool flag, const T& msg) {
     if (flag) {
       if (m_logSp) {
         m_logSp->error(msg);
@@ -487,7 +487,7 @@ class LogManager final {
   }
 
   template <typename... Args>
-  inline void error_name(const std::string& name, fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void error_name(const std::string& name, fmt::format_string<Args...> fmt, Args&&... args) {
     auto logPtr = spdlog::get(name);
     if (logPtr) {
       logPtr->error(fmt, std::forward<Args>(args)...);
@@ -495,7 +495,7 @@ class LogManager final {
   }
 
   template <typename T>
-  inline void error_name(const std::string& name, const T& msg) {
+  [[maybe_unused]] inline void error_name(const std::string& name, const T& msg) {
     std::shared_ptr<spdlog::logger> logPtr = spdlog::get(name);
     if (logPtr) {
       // logging to multi-sink logger
@@ -507,7 +507,7 @@ class LogManager final {
   // critical
   //----------------------------------------------------------
   template <typename... Args>
-  inline void critical(fmt::format_string<Args...> fmt, Args&&... args) {
+  [[maybe_unused]] inline void critical(fmt::format_string<Args...> fmt, Args&&... args) {
     if (m_logSp) {
       m_logSp->critical(fmt, std::forward<Args>(args)...);
     }
@@ -547,7 +547,7 @@ class LogManager final {
   }
 
   template <typename T>
-  inline void critical_name(const std::string& name, const T& msg) {
+  [[maybe_unused]] inline void critical_name(const std::string& name, const T& msg) {
     std::shared_ptr<spdlog::logger> logPtr = spdlog::get(name);
     if (logPtr) {
       // logging to multi-sink logger
