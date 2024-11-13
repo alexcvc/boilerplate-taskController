@@ -2,111 +2,127 @@
 #include "catch.hpp"
 #include "cppsl/log/logManager.hpp"
 
-TEST_CASE("LogManager default constructor", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  REQUIRE(logManager.name() == "logman");
-  REQUIRE(logManager.number_sinks() == 0);
-  REQUIRE(logManager.empty() == true);
-}
-
-TEST_CASE("LogManager parameterized constructor", "[LogManager]") {
-  cppsl::log::LogManager logManager("testLogger");
-  REQUIRE(logManager.name() == "testLogger");
-  REQUIRE(logManager.number_sinks() == 0);
-  REQUIRE(logManager.empty() == true);
+TEST_CASE("LogManager create manager", "[LogManager]") {
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->name() == "test");
+  REQUIRE(logManPtr->numberSinks() == 0);
+  REQUIRE(logManPtr->empty() == true);
 }
 
 TEST_CASE("LogManager add_basic_file_sink", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  REQUIRE(logManager.add_basic_file_sink("test.log", cppsl::log::LogManager::Truncate::by_open, spdlog::level::info) ==
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_basic_file_sink("test.log", cppsl::log::LogManager::Truncate::by_open, spdlog::level::info) ==
           true);
-  REQUIRE(logManager.number_sinks() == 1);
+  REQUIRE(logManPtr->numberSinks() == 1);
 }
 
 TEST_CASE("LogManager add_rotation_file_sink", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  REQUIRE(logManager.add_rotation_file_sink("test.log", 1048576, 3, spdlog::level::info) == true);
-  REQUIRE(logManager.number_sinks() == 1);
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_rotation_file_sink("test.log", 1048576, 3, spdlog::level::info) == true);
+  REQUIRE(logManPtr->numberSinks() == 1);
 }
 
 TEST_CASE("LogManager add_daily_file_sink", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  REQUIRE(logManager.add_daily_file_sink("test.log", 0, 0, spdlog::level::info) == true);
-  REQUIRE(logManager.number_sinks() == 1);
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_daily_file_sink("test.log", 0, 0, spdlog::level::info) == true);
+  REQUIRE(logManPtr->numberSinks() == 1);
 }
 
 TEST_CASE("LogManager add_console_sink", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  REQUIRE(logManager.add_console_sink(cppsl::log::LogManager::OutputLog::out, cppsl::log::LogManager::Colored::color,
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_console_sink(cppsl::log::LogManager::OutputLog::out, cppsl::log::LogManager::Colored::color,
                                       spdlog::level::info) == true);
-  REQUIRE(logManager.number_sinks() == 1);
+  REQUIRE(logManPtr->numberSinks() == 1);
 }
 
 TEST_CASE("LogManager add_rsyslog_sink", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  REQUIRE(logManager.add_rsyslog_sink("testIdent", "127.0.0.1", 1, spdlog::level::info) == true);
-  REQUIRE(logManager.number_sinks() == 1);
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_rsyslog_sink("testIdent", "127.0.0.1", 1, spdlog::level::info) == true);
+  REQUIRE(logManPtr->numberSinks() == 1);
 }
 
 TEST_CASE("LogManager add_syslog_sink", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  REQUIRE(logManager.add_syslog_sink("testIdent", 0, 1, true, spdlog::level::info) == true);
-  REQUIRE(logManager.number_sinks() == 1);
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_syslog_sink("testIdent", 0, 1, true, spdlog::level::info) == true);
+  REQUIRE(logManPtr->numberSinks() == 1);
 }
 
 TEST_CASE("LogManager openLogger and closeLogger", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  REQUIRE(logManager.openLogger(spdlog::level::info) == true);
-  logManager.closeLogger();
-  REQUIRE(logManager.number_sinks() == 0);
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_console_sink(cppsl::log::LogManager::OutputLog::out, cppsl::log::LogManager::Colored::color,
+                                      spdlog::level::info) == true);
+  REQUIRE(logManPtr->openLogger(spdlog::level::info) == true);
+  logManPtr->info("Info message");
+  logManPtr->closeLogger();
+  REQUIRE(logManPtr->numberSinks() == 0);
 }
 
 TEST_CASE("LogManager set_level and level", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  logManager.set_level(spdlog::level::debug);
-  REQUIRE(logManager.level() == spdlog::level::debug);
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  logManPtr->set_level(spdlog::level::debug);
+  REQUIRE(logManPtr->level() == spdlog::level::debug);
+  logManPtr->closeLogger();
+  REQUIRE(logManPtr->numberSinks() == 0);
 }
 
 TEST_CASE("LogManager false open empty log", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  logManager.set_level(spdlog::level::debug);
-  REQUIRE_FALSE(logManager.openLogger(spdlog::level::debug));
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_console_sink(cppsl::log::LogManager::OutputLog::out, cppsl::log::LogManager::Colored::color,
+                                      spdlog::level::debug) == true);
+  logManPtr->set_level(spdlog::level::debug);
+  REQUIRE_NOTHROW(logManPtr->openLogger(spdlog::level::debug));
+  logManPtr->closeLogger();
+  REQUIRE(logManPtr->numberSinks() == 0);
 }
 
 TEST_CASE("LogManager trace", "[LogManager]") {
-  cppsl::log::LogManager logManager{"testLogger"};
-  REQUIRE(logManager.add_console_sink(cppsl::log::LogManager::OutputLog::out, cppsl::log::LogManager::Colored::color,
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_console_sink(cppsl::log::LogManager::OutputLog::out, cppsl::log::LogManager::Colored::color,
                                       spdlog::level::trace) == true);
-  REQUIRE(logManager.openLogger(spdlog::level::trace) == true);
-  REQUIRE_NOTHROW(logManager.trace("Trace message"));
+  REQUIRE(logManPtr->openLogger(spdlog::level::trace));
+  REQUIRE_NOTHROW(logManPtr->trace("Trace message"));
+  logManPtr->closeLogger();
+  REQUIRE(logManPtr->numberSinks() == 0);
 }
 
 TEST_CASE("LogManager debug", "[LogManager]") {
-  cppsl::log::LogManager logManager{"testLogger"};
-  logManager.openLogger(spdlog::level::debug);
-  REQUIRE_NOTHROW(logManager.debug("Debug message"));
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_console_sink(cppsl::log::LogManager::OutputLog::out, cppsl::log::LogManager::Colored::color,
+                                      spdlog::level::debug) == true);
+  REQUIRE(logManPtr->openLogger(spdlog::level::debug) == true);
+  REQUIRE_NOTHROW(logManPtr->debug("Debug message"));
+  logManPtr->closeLogger();
+  REQUIRE(logManPtr->numberSinks() == 0);
 }
 
 TEST_CASE("LogManager info", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  logManager.openLogger(spdlog::level::info);
-  REQUIRE_NOTHROW(logManager.info("Info message"));
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_console_sink(cppsl::log::LogManager::OutputLog::out, cppsl::log::LogManager::Colored::color,
+                                      spdlog::level::info) == true);
+  REQUIRE(logManPtr->openLogger(spdlog::level::info) == true);
+  REQUIRE_NOTHROW(logManPtr->info("Info message"));
 }
 
 TEST_CASE("LogManager warn", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  logManager.openLogger(spdlog::level::warn);
-  REQUIRE_NOTHROW(logManager.warn("Warn message"));
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_console_sink(cppsl::log::LogManager::OutputLog::out, cppsl::log::LogManager::Colored::color,
+                                      spdlog::level::warn) == true);
+  REQUIRE(logManPtr->openLogger(spdlog::level::warn) == true);
+  REQUIRE_NOTHROW(logManPtr->warn("Warn message"));
 }
 
 TEST_CASE("LogManager error", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  logManager.openLogger(spdlog::level::err);
-  REQUIRE_NOTHROW(logManager.error("Error message"));
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_console_sink(cppsl::log::LogManager::OutputLog::out, cppsl::log::LogManager::Colored::color,
+                                      spdlog::level::err) == true);
+  REQUIRE(logManPtr->openLogger(spdlog::level::err) == true);
+  REQUIRE_NOTHROW(logManPtr->error("Error message"));
 }
 
 TEST_CASE("LogManager critical", "[LogManager]") {
-  cppsl::log::LogManager logManager;
-  auto ret = logManager.openLogger(spdlog::level::critical);
-  REQUIRE_NOTHROW(logManager.critical("Critical message"));
+  auto logManPtr = cppsl::log::CreateSharedManager("test");
+  REQUIRE(logManPtr->add_console_sink(cppsl::log::LogManager::OutputLog::out, cppsl::log::LogManager::Colored::color,
+                                      spdlog::level::critical) == true);
+  REQUIRE(logManPtr->openLogger(spdlog::level::critical) == true);
+  REQUIRE_NOTHROW(logManPtr->critical("Critical message"));
 }

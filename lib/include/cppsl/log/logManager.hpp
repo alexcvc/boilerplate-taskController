@@ -52,7 +52,7 @@ class LogManager;
 using LogManagerPtr = std::shared_ptr<LogManager>;
 
 template <typename Factory = LogManager>
-auto CreateLoggingManager(std::string_view name) {
+auto CreateSharedManager(const std::string& name) {
   return std::make_shared<Factory>(name);
 }
 
@@ -68,42 +68,22 @@ class LogManager final {
   enum class OutputLog : bool { err, out };
   enum class Truncate : bool { no, by_open };
 
-  /**
-    * default constructor
-    * @param name - logging name. It is useful, if you want to serve logger by name instead shared pointer
-    */
+  // Private constructor to prevent direct instantiation
   LogManager() {
-    m_name = "logman";
     m_logSp = std::make_shared<spdlog::logger>(m_name);
   }
 
-  explicit LogManager(std::string_view name) : m_name(name) {
+  LogManager(const std::string& name) : m_name(name) {
     m_logSp = std::make_shared<spdlog::logger>(m_name);
   }
 
-  // Copy constructor
-  LogManager(const LogManager& other) : m_name(other.m_name), m_logSp(other.m_logSp) {}
+  // Delete copy constructor and copy assignment operator to prevent copying
+  LogManager(const LogManager&) = delete;
+  LogManager& operator=(const LogManager&) = delete;
 
-  // Move constructor
-  LogManager(LogManager&& other) noexcept : m_name(std::move(other.m_name)), m_logSp(std::move(other.m_logSp)) {}
-
-  // Copy assignment operator
-  LogManager& operator=(const LogManager& other) {
-    if (this != &other) {
-      m_name = other.m_name;
-      m_logSp = other.m_logSp;
-    }
-    return *this;
-  }
-
-  // Move assignment operator
-  LogManager& operator=(LogManager&& other) noexcept {
-    if (this != &other) {
-      m_name = std::move(other.m_name);
-      m_logSp = std::move(other.m_logSp);
-    }
-    return *this;
-  }
+  // Delete move constructor and move assignment operator to prevent moving
+  LogManager(LogManager&&) = delete;
+  LogManager& operator=(LogManager&&) = delete;
 
   /**
     * destructor
@@ -131,7 +111,7 @@ class LogManager final {
    * @brief Gets the number of sinks in the LogManager.
    * @return The number of sinks in the LogManager, or 0 if the LogManager has no log pointer.
    */
-  [[nodiscard]] size_t number_sinks() const {
+  [[nodiscard]] size_t numberSinks() const {
     if (m_logSp == nullptr)
       return 0;
     return m_logSp->sinks().size();
@@ -170,12 +150,12 @@ class LogManager final {
                                             log_level level) noexcept;
 
   /**
-    * Create file sink which create new file on the given time (default in midnight)
-    * @param filename - target log file name
-    * @param hour
-    * @param minute
-    * @param level - log level for this sink
-    */
+   * Create file sink which create new file on the given time (default in midnight)
+   * @param filename - target log file name
+   * @param hour
+   * @param minute
+   * @param level - log level for this sink
+   */
   [[nodiscard]] bool add_daily_file_sink(const std::string& filename, int hour, int minute, log_level level) noexcept;
 
   /**
@@ -187,30 +167,30 @@ class LogManager final {
   [[nodiscard]] bool add_console_sink(OutputLog to_stderr, Colored colored, log_level level) noexcept;
 
   /**
-    * Create and register a rsyslog sinks to remote server
-    * @param ident - The string pointed to by ident is prepended to every message.
-    * @param rsyslog_ip - remote syslog server IP
-    * @param syslog_facility - facility codes specifies what type of program is logging the message.
-    * @param severity - severity of message
-    * More information in https://man7.org/linux/man-pages/man3/syslog.3.html
-    * @param lev - level of message
-    * @param port - remote port of server
-    * @param enable_formatting - default true. However the message format maybe changed.
-    * @param log_buffer_max_size - buffer reserved in the message string. This increases performance when creating
-    * log messages.
-    */
+   * Create and register a rsyslog sinks to remote server
+   * @param ident - The string pointed to by ident is prepended to every message.
+   * @param rsyslog_ip - remote syslog server IP
+   * @param syslog_facility - facility codes specifies what type of program is logging the message.
+   * @param severity - severity of message
+   * More information in https://man7.org/linux/man-pages/man3/syslog.3.html
+   * @param lev - level of message
+   * @param port - remote port of server
+   * @param enable_formatting - default true. However the message format maybe changed.
+   * @param log_buffer_max_size - buffer reserved in the message string. This increases performance when creating
+   * log messages.
+   */
   [[nodiscard]] bool add_rsyslog_sink(const std::string& ident, const std::string& rsyslog_ip, int syslog_facility,
                                       log_level lev, int port = 514, bool enable_formatting = true,
                                       int log_buffer_max_size = 1024 * 1024 * 16) noexcept;
 
   /**
-    * Create and register a syslog sinks
-    * @param syslog_ident- The string pointed to by ident is prepended to every message.
-    * @param syslog_option - options. More information in https://man7.org/linux/man-pages/man3/syslog.3.html
-    * @param syslog_facility - facility codes specifies what type of program is logging the message.
-    * @param enable_formatting - default true. However the message format maybe changed.
-    * @param level - log level for this sink
-    */
+   * Create and register a syslog sinks
+   * @param syslog_ident- The string pointed to by ident is prepended to every message.
+   * @param syslog_option - options. More information in https://man7.org/linux/man-pages/man3/syslog.3.html
+   * @param syslog_facility - facility codes specifies what type of program is logging the message.
+   * @param enable_formatting - default true. However the message format maybe changed.
+   * @param level - log level for this sink
+   */
   [[nodiscard]] bool add_syslog_sink(const std::string& syslog_ident, int syslog_option, int syslog_facility,
                                      bool enable_formatting, log_level level) noexcept;
 

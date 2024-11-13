@@ -39,27 +39,23 @@ static const char* LOG_MANAGER_INITIALIZATION_FAILED = "Logging manager initiali
  *****************************************************************************/
 bool LogManager::openLogger(spdlog::level::level_enum level) {
   try {
-    if (!m_logSp)
+    if (!m_logSp) {
       throw spdlog::spdlog_ex("no logging manager instance created");
-
-    // or you can even set multi_sink logger as default logger
-    if (m_logSp->sinks().empty()) {
-      throw spdlog::spdlog_ex("no sinks added to logger");
     }
-
-    m_logSp->set_level(level);
-
-    // register logger
-    spdlog::register_logger(m_logSp);
-    return true;
-
+    // or you can even set multi_sink logger as default logger
+    if (!m_logSp->sinks().empty()) {
+      // register logger
+      spdlog::register_logger(m_logSp);
+      // set level
+      m_logSp->set_level(level);
+      return true;
+    }
   } catch (const spdlog::spdlog_ex& ex) {
     std::cout << "Logging manager open failed: " << ex.what() << std::endl;
-    return false;
   } catch (...) {
     std::cout << "Logging manager open unexpected failed" << std::endl;
-    return false;
   }
+  return false;
 }
 
 /**
