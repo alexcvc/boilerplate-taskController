@@ -44,7 +44,8 @@ target_include_directories(${TargetName} PRIVATE
 
 find_package(fmt)
 #target_link_libraries(${TargetName} PRIVATE fmt::fmt-header-only spdlog::spdlog_header_only Threads::Threads)
-target_link_libraries(${TargetName} PRIVATE Threads::Threads)
+target_include_directories(${TargetName} PRIVATE ${CMAKE_SOURCE_DIR}/lib/include)
+target_link_libraries(${TargetName} PRIVATE Threads::Threads cppsl)
 
 # post build copy optional
 if ((NOT ${CMAKE_POSTBUILD_OUTPUT_DIRECTORY}) AND (IS_DIRECTORY ${CMAKE_POSTBUILD_OUTPUT_DIRECTORY}))

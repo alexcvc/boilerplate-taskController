@@ -21,6 +21,7 @@
 #include <string>
 #include <thread>
 
+#include <cppsl/log/logManager.hpp>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
@@ -266,6 +267,18 @@ int main(int argc, char** argv) {
   app::Daemon& daemon = app::Daemon::instance();
   app::DaemonConfig appConfig;  ///< The configuration of the daemon
   app::AppContext appContext;   ///< The application context
+  cppsl::log::LogManagerPtr logManPtr{cppsl::log::CreateSharedManager("main")};
+
+  if (!logManPtr->add_console_sink(cppsl::log::LogManager::OutputLog::err, cppsl::log::LogManager::Colored::color,
+                                   spdlog::level::debug)) {
+    spdlog::warn("cannot add console log");
+  }
+
+  if (!logManPtr->openLogger(spdlog::level::debug)) {
+    spdlog::warn("cannot open log manager");
+  }
+
+  logManPtr->info("Application started");
 
   //----------------------------------------------------------
   // parse parameters
