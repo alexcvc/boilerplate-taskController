@@ -50,7 +50,7 @@ namespace cppsl::log {
 /**
  * @brief Class Log implements logger in  application
  */
-class MultiSinkWizard final {
+class MultiSinkWizard {
   std::string m_name{"spdlog"};  ///< name of log manager
   std::vector<spdlog::sink_ptr> m_sinks;
 
@@ -58,16 +58,6 @@ class MultiSinkWizard final {
   enum class Colored { color, black_white };
   enum class OutputLog : bool { err, out };
   enum class Truncate : bool { no, by_open };
-
-  /**
-    * default constructor
-    */
-  MultiSinkWizard() = default;
-
-  /**
-    * destructor
-    */
-  ~MultiSinkWizard() = default;
 
   /**
    * @brief Returns the name of the logging manager.
@@ -81,7 +71,7 @@ class MultiSinkWizard final {
    * @brief set name of logger
    * @param name - name of logger
    */
-  void setName(const std::string& name) {
+  void set_name(const std::string& name) {
     m_name = name;
   }
 
@@ -89,7 +79,7 @@ class MultiSinkWizard final {
    * @brief Gets the number of sinks in the LogManager.
    * @return The number of sinks in the LogManager, or 0 if the LogManager has no log pointer.
    */
-  [[nodiscard]] size_t number_sinks() const {
+  [[nodiscard]] size_t size() const {
     return m_sinks.size();
   }
 
@@ -99,6 +89,13 @@ class MultiSinkWizard final {
    */
   [[nodiscard]] bool empty() const {
     return m_sinks.empty();
+  }
+
+  void set_default() const {
+    if (!empty()) {
+      // set multi-sink logger as default logger
+      spdlog::set_default_logger(std::make_shared<spdlog::logger>(m_name, m_sinks.begin(), m_sinks.end()));
+    }
   }
 
   //----------------------------------------------------------
@@ -140,7 +137,7 @@ class MultiSinkWizard final {
     * @param colored
     * @param level - log level for this sink
     */
-  [[nodiscard]] bool add_console_sink(OutputLog output, Colored colored, spdlog::level::level_enum level) noexcept;
+  void add_console_sink(OutputLog output, Colored colored, spdlog::level::level_enum level) noexcept;
 
   /**
     * Create and register a rsyslog sinks to remote server

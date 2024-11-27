@@ -267,18 +267,12 @@ int main(int argc, char** argv) {
   app::Daemon& daemon = app::Daemon::instance();
   app::DaemonConfig appConfig;  ///< The configuration of the daemon
   app::AppContext appContext;   ///< The application context
-  cppsl::log::LogManagerPtr logManPtr{cppsl::log::CreateLoggingManager("main")};
+  cppsl::log::MultiSinkWizard sinkWizard;
 
-  if (!logManPtr->add_console_sink(cppsl::log::MultiSinkWizard::OutputLog::err,
-                                   cppsl::log::MultiSinkWizard::Colored::color, spdlog::level::debug)) {
-    spdlog::warn("cannot add console log");
-  }
-
-  if (!logManPtr->openLogger(spdlog::level::debug)) {
-    spdlog::warn("cannot open log manager");
-  }
-
-  logManPtr->critical("Log manager is okay? Empty: {}?", logManPtr->empty());
+  sinkWizard.set_name("taskctrl");
+  sinkWizard.add_console_sink(cppsl::log::MultiSinkWizard::OutputLog::err, cppsl::log::MultiSinkWizard::Colored::color,
+                              spdlog::level::info);
+  sinkWizard.set_default();
 
   //----------------------------------------------------------
   // parse parameters
@@ -345,7 +339,7 @@ int main(int argc, char** argv) {
   // Get a stop_token from the stop_source
   std::stop_token stopToken = stopSource.get_token();
   // Create all workers and pass stop tokens
-std::thread taskAppCtx =
+  std::thread taskAppCtx =
       std::move(std::thread(AppContextWorker, std::ref(appContext), std::ref(appConfig), stopSource.get_token()));
 
   //----------------------------------------------------------

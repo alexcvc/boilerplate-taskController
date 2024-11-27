@@ -133,19 +133,19 @@ bool MultiSinkWizard::add_daily_file_sink(const std::string& filename, int hour,
 }
 
 /*************************************************************************/ /**
- * @brief Add a console sink to the logger.
+ * Adds a console sink to the logger.
  *
- * This method adds a console sink to the logger. A console sink is used to
- * redirect log messages to the console.
+ * This method adds a console sink which directs log messages to the console.
  *
- * @param to_stderr Determines whether the log messages should be redirected to stderr.
- * @param colored Determines whether the log messages should be displayed in color.
- * @param level The default logging level if not set in the sink.
+ * @param level The default logging level for console output.
+ * @param color Determines whether colored output should be used in the console.
+ * @param pattern The log message format pattern.
  * @return True if the console sink was added successfully, false otherwise.
  *
  * @exception spdlog::spdlog_ex Thrown when the creation of the console sink fails.
- *****************************************************************************/
-bool MultiSinkWizard::add_console_sink(OutputLog output, Colored colored, spdlog::level::level_enum level) noexcept {
+ * @exception std::runtime_error Thrown when setting the console properties fails.
+ */
+void MultiSinkWizard::add_console_sink(OutputLog output, Colored colored, spdlog::level::level_enum level) noexcept {
   if (colored == Colored::color) {
     if (output == OutputLog::err) {
       auto s = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
@@ -167,7 +167,6 @@ bool MultiSinkWizard::add_console_sink(OutputLog output, Colored colored, spdlog
       m_sinks.push_back(s);
     }
   }
-  return true;
 }
 
 /**
@@ -178,10 +177,10 @@ bool MultiSinkWizard::add_console_sink(OutputLog output, Colored colored, spdlog
 bool MultiSinkWizard::add_syslog_sink(const std::string& syslog_ident, int syslog_option, int syslog_facility,
                                       bool enable_formatting, spdlog::level::level_enum level) noexcept {
   try {
-    auto sinkPtr = std::make_shared<spdlog::sinks::syslog_sink_mt>(syslog_ident, syslog_option, syslog_facility,
-                                                                   enable_formatting);
-    sinkPtr->set_level(level);
-    push_sink_safe(sinkPtr, level);
+    auto s = std::make_shared<spdlog::sinks::syslog_sink_mt>(syslog_ident, syslog_option, syslog_facility,
+                                                             enable_formatting);
+    s->set_level(level);
+    m_sinks.push_back(s);
     return true;
 
   } catch (const spdlog::spdlog_ex& ex) {
@@ -203,10 +202,11 @@ bool MultiSinkWizard::add_rsyslog_sink(const std::string& ident, const std::stri
                                        spdlog::level::level_enum lev, int port, bool enable_formatting,
                                        int log_buffer_max_size) noexcept {
   try {
-    auto sinkPtr = std::make_shared<spdlog::sinks::rsyslog_sink_mt>(ident, rsyslog_ip, syslog_facility,
-                                                                    log_buffer_max_size, port, enable_formatting);
-    sinkPtr->set_pattern("[%Y-%m-%d %H:%M:%S:%e] [%n] [%l] [%P] %@ : %v");
-    push_sink_safe(sinkPtr, lev);
+    auto s = std::make_shared<spdlog::sinks::rsyslog_sink_mt>(ident, rsyslog_ip, syslog_facility, log_buffer_max_size,
+                                                              port, enable_formatting);
+    s->set_pattern("[%Y-%m-%d %H:%M:%S:%e] [%n] [%l] [%P] %@ : %v");
+    s->set_level(lev);
+    m_sinks.push_back(s);
     return true;
   } catch (const spdlog::spdlog_ex& ex) {
     std::cerr << LOG_MANAGER_INITIALIZATION_FAILED << ": " << ex.what() << std::endl;
