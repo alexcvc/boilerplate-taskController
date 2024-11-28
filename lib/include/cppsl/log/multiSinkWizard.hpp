@@ -167,11 +167,6 @@ class MultiSinkWizard {
   [[nodiscard]] bool add_syslog_sink(const std::string& syslog_ident, int syslog_option, int syslog_facility,
                                      bool enable_formatting, spdlog::level::level_enum level) noexcept;
 
-  //----------------------------------------------------------
-  // Logger startup, shutdown and drop all sinks
-  //----------------------------------------------------------
-  void push_sink_safe(spdlog::sink_ptr sinkPtr, spdlog::level::level_enum level);
-
  private:
   [[nodiscard]] bool check_create_path(const std::string& filename);
 };
