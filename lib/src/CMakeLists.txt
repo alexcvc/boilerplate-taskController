@@ -19,7 +19,7 @@ find_package(fmt REQUIRED)
 # Add include directories
 target_include_directories(
    ${TargetName}
-   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
    PUBLIC "$<BUILD_INTERFACE:${TARGET_INCLUDE_FOLDER}>"
    "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 

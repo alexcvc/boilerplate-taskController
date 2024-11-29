@@ -24,6 +24,7 @@
 #include <cppsl/log/multiSinkWizard.hpp>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
+#include <sys/syslog.h>
 
 #include "appContext.hpp"
 #include "daemon.hpp"
@@ -272,6 +273,9 @@ int main(int argc, char** argv) {
   sinkWizard.set_name("taskctrl");
   sinkWizard.add_console_sink(cppsl::log::MultiSinkWizard::OutputLog::err, cppsl::log::MultiSinkWizard::Colored::color,
                               spdlog::level::info);
+  sinkWizard.add_console_sink(cppsl::log::MultiSinkWizard::OutputLog::out, cppsl::log::MultiSinkWizard::Colored::color,
+                              spdlog::level::info);
+  sinkWizard.add_rsyslog_sink("taskctrl", "192.168.1.2", LOG_DAEMON, spdlog::level::trace, 514, true, 1024);
   sinkWizard.set_default();
 
   //----------------------------------------------------------
