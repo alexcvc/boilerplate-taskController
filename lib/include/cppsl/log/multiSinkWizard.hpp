@@ -36,7 +36,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/logger.h>
 #include <spdlog/fmt/fmt.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include "spdlog/sinks/basic_file_sink.h"
 // clang-format on
@@ -91,10 +91,12 @@ class MultiSinkWizard {
     return m_sinks.empty();
   }
 
-  void set_default() const {
+  void set_default(spdlog::level::level_enum level) const {
     if (!empty()) {
       // set multi-sink logger as default logger
-      spdlog::set_default_logger(std::make_shared<spdlog::logger>(m_name, m_sinks.begin(), m_sinks.end()));
+      auto logger = std::make_shared<spdlog::logger>(m_name, m_sinks.begin(), m_sinks.end());
+      logger->set_level(level);
+      spdlog::set_default_logger(logger);
     }
   }
 

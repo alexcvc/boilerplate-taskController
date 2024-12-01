@@ -21,9 +21,12 @@
 #include <string>
 #include <thread>
 
-#include <cppsl/log/multiSinkWizard.hpp>
+#include <cppsl/log/details/rsyslog_sink.hpp>
 #include <fmt/format.h>
-#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/daily_file_sink.h>
+#include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <sys/syslog.h>
 
 #include "appContext.hpp"
@@ -268,15 +271,37 @@ int main(int argc, char** argv) {
   app::Daemon& daemon = app::Daemon::instance();
   app::DaemonConfig appConfig;  ///< The configuration of the daemon
   app::AppContext appContext;   ///< The application context
-  cppsl::log::MultiSinkWizard sinkWizard;
 
-  sinkWizard.set_name("taskctrl");
-  sinkWizard.add_console_sink(cppsl::log::MultiSinkWizard::OutputLog::err, cppsl::log::MultiSinkWizard::Colored::color,
-                              spdlog::level::info);
-  sinkWizard.add_console_sink(cppsl::log::MultiSinkWizard::OutputLog::out, cppsl::log::MultiSinkWizard::Colored::color,
-                              spdlog::level::info);
-  sinkWizard.add_rsyslog_sink("taskctrl", "192.168.1.2", LOG_DAEMON, spdlog::level::trace, 514, true, 1024);
-  sinkWizard.set_default();
+  auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+  console_sink->set_level(spdlog::level::trace);
+  console_sink->set_pattern("[multi_sink_example] [%^%l%$] %v");
+
+  auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/multisink.txt", true);
+  file_sink->set_level(spdlog::level::info);
+
+  auto rsys_sink =
+      std::make_shared<spdlog::sinks::rsyslog_sink_mt>("taskctrl", "192.168.1.2", LOG_LOCAL0, 1024, 514, true);
+  rsys_sink->set_level(spdlog::level::trace);
+
+  spdlog::sinks_init_list sink_list;
+  sink_list = {file_sink, console_sink, rsys_sink};
+
+  spdlog::logger logger("multi_sink", sink_list.begin(), sink_list.end());
+  logger.set_level(spdlog::level::trace);
+
+  logger.warn("this should appear in both console and file");
+  logger.info("this message should not appear in the console, only in the file");
+
+  // or you can even set multi_sink logger as default logger
+  spdlog::set_default_logger(
+      std::make_shared<spdlog::logger>("multi_sink", spdlog::sinks_init_list({console_sink, file_sink, rsys_sink})));
+
+  spdlog::critical("Test message critical");
+  spdlog::error("Test message error   ");
+  spdlog::warn("Test message warn    ");
+  spdlog::info("Test message info    ");
+  spdlog::debug("Test message debug   ");
+  spdlog::trace("Test message trace   ");
 
   //----------------------------------------------------------
   // parse parameters
