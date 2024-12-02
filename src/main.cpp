@@ -59,10 +59,13 @@ static DaemonEvent daemon_event;
 /**
  * @brief The options for the program.
  */
+// clang-format off
 static const std::array<std::string_view, 8> OPTIONS = {
-    "  -D, --background         start as daemon\n", "  -C, --cfgfile            specified configuration file\n",
-    "  -P, --pidfile            create pid file\n", "  -v, --version            version\n",
-    "  -h, --help               this message\n"};
+  "  -D, --background         start as daemon\n",
+  "  -C, --cfgfile            specified configuration file\n",
+  "  -P, --pidfile            create pid file\n",
+  "  -v, --version            version\n",
+  "  -h, --help               this message\n"};
 
 /**
  *  @brief The help options for the program.
@@ -81,7 +84,11 @@ static const struct option long_options[] = {
  * @brief The sample command lines for the program.
  */
 static const std::array<std::string_view, 3> SAMPLE_COMMANDS = {
-    " -F\n", " -D -P /var/run/some.pid\n", " -D -C /app/config/config.yaml -P /var/run/some.pid\n"};
+  " -F\n",
+  " -D -P /var/run/some.pid\n",
+  " -D -C /app/config/config.yaml -P /var/run/some.pid\n"
+};
+// clang-format on
 
 //----------------------------------------------------------------------------
 // Prototypes
