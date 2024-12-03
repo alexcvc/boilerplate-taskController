@@ -25,6 +25,7 @@
 #include <fmt/format.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/daily_file_sink.h>
+#include <spdlog/sinks/dist_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <sys/syslog.h>
@@ -279,6 +280,9 @@ int main(int argc, char** argv) {
   app::DaemonConfig appConfig;  ///< The configuration of the daemon
   app::AppContext appContext;   ///< The application context
 
+  //----------------------------------------------------------
+  // Setup log default
+  //----------------------------------------------------------
   auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
   console_sink->set_level(spdlog::level::trace);
   console_sink->set_pattern("[multi_sink_example] [%^%l%$] %v");
@@ -290,6 +294,7 @@ int main(int argc, char** argv) {
       std::make_shared<spdlog::sinks::rsyslog_sink_mt>("taskctrl", "192.168.1.2", LOG_LOCAL0, 1024, 514, true);
   rsys_sink->set_level(spdlog::level::trace);
 
+#if 0
   spdlog::sinks_init_list sink_list;
   sink_list = {file_sink, console_sink, rsys_sink};
 
@@ -302,6 +307,18 @@ int main(int argc, char** argv) {
   // or you can even set multi_sink logger as default logger
   spdlog::set_default_logger(
       std::make_shared<spdlog::logger>("multi_sink", spdlog::sinks_init_list({console_sink, file_sink, rsys_sink})));
+#else
+  auto dist_sink = std::make_shared<spdlog::sinks::dist_sink_mt>();
+  dist_sink->add_sink(console_sink);
+  dist_sink->add_sink(file_sink);
+  dist_sink->add_sink(rsys_sink);
+
+  dist_sink->set_level(spdlog::level::trace);
+  dist_sink->set_pattern("[multi_sink_example] [%^%l%$] %v");
+
+  spdlog::set_default_logger(std::make_shared<spdlog::logger>("dist_sink", dist_sink));
+
+#endif
 
   spdlog::critical("Test message critical");
   spdlog::error("Test message error   ");
