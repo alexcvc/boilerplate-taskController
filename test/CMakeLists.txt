@@ -8,7 +8,6 @@ enable_testing()
 set(SOURCE_FILES
    circularBufferTest.cpp
    dequeSafeTest.cpp
-   logManagerTest.cpp
    queueLockFreeTest.cpp
    roundWatchTest.cpp
 )
@@ -28,7 +27,7 @@ foreach (SOURCE_PATH ${SOURCE_FILES})
 
   ## link with library
   #  target_link_libraries(${TargetName} gtest gtest_main)
-  target_link_libraries(${TargetName} PRIVATE Catch2::Catch2 cppsl)
+  target_link_libraries(${TargetName} PRIVATE Catch2::Catch2)
 
   # Add the test to CTest
   add_test(NAME ${TargetName} COMMAND ${TargetName})

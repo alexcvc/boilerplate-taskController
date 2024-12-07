@@ -239,6 +239,47 @@ handleConsoleType handle_console() {
 }
 
 /*************************************************************************/ /**
+ * @brief Set logger
+ *****************************************************************************/
+void SetLogger() {
+  std::vector<std::shared_ptr<spdlog::sinks::sink>> sinks_;
+
+  auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+  console_sink->set_level(spdlog::level::trace);
+  console_sink->set_pattern("[%^%l%$] %v");
+
+  sinks_.push_back(console_sink);
+
+  auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("log.txt", true);
+  file_sink->set_level(spdlog::level::info);
+
+  sinks_.push_back(file_sink);
+
+  auto daily_sink = std::make_shared<spdlog::sinks::daily_file_format_sink_mt>("daily.txt", 2, 30);
+  daily_sink->set_level(spdlog::level::info);
+
+  sinks_.push_back(daily_sink);
+
+  auto rsys_sink = std::make_shared<spdlog::sinks::rsyslog_sink_mt>(program_invocation_short_name, "192.168.1.2",
+                                                                    LOG_LOCAL0, 1024, 514, true);
+  rsys_sink->set_level(spdlog::level::trace);
+
+  sinks_.push_back(rsys_sink);
+
+  auto dist_sink = std::make_shared<spdlog::sinks::dist_sink_mt>();
+  for (auto& item : sinks_) {
+    dist_sink->add_sink(item);
+  }
+
+  dist_sink->set_level(spdlog::level::info);
+  //  dist_sink->set_pattern("[multi_sink_example] [%^%l%$] %v");
+
+  spdlog::set_default_logger(std::make_shared<spdlog::logger>(program_invocation_short_name, dist_sink));
+
+  sinks_.clear();
+}
+
+/*************************************************************************/ /**
  * @brief Subscriber main function
  * @desc Threads cannot always actively monitor a stop token.
  * @param lptr - log appender
@@ -283,49 +324,7 @@ int main(int argc, char** argv) {
   //----------------------------------------------------------
   // Setup log default
   //----------------------------------------------------------
-  auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-  console_sink->set_level(spdlog::level::trace);
-  console_sink->set_pattern("[multi_sink_example] [%^%l%$] %v");
-
-  auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/multisink.txt", true);
-  file_sink->set_level(spdlog::level::info);
-
-  auto rsys_sink =
-      std::make_shared<spdlog::sinks::rsyslog_sink_mt>("taskctrl", "192.168.1.2", LOG_LOCAL0, 1024, 514, true);
-  rsys_sink->set_level(spdlog::level::trace);
-
-#if 0
-  spdlog::sinks_init_list sink_list;
-  sink_list = {file_sink, console_sink, rsys_sink};
-
-  spdlog::logger logger("multi_sink", sink_list.begin(), sink_list.end());
-  logger.set_level(spdlog::level::trace);
-
-  logger.warn("this should appear in both console and file");
-  logger.info("this message should not appear in the console, only in the file");
-
-  // or you can even set multi_sink logger as default logger
-  spdlog::set_default_logger(
-      std::make_shared<spdlog::logger>("multi_sink", spdlog::sinks_init_list({console_sink, file_sink, rsys_sink})));
-#else
-  auto dist_sink = std::make_shared<spdlog::sinks::dist_sink_mt>();
-  dist_sink->add_sink(console_sink);
-  dist_sink->add_sink(file_sink);
-  dist_sink->add_sink(rsys_sink);
-
-  dist_sink->set_level(spdlog::level::trace);
-  dist_sink->set_pattern("[multi_sink_example] [%^%l%$] %v");
-
-  spdlog::set_default_logger(std::make_shared<spdlog::logger>("dist_sink", dist_sink));
-
-#endif
-
-  spdlog::critical("Test message critical");
-  spdlog::error("Test message error   ");
-  spdlog::warn("Test message warn    ");
-  spdlog::info("Test message info    ");
-  spdlog::debug("Test message debug   ");
-  spdlog::trace("Test message trace   ");
+  SetLogger();
 
   //----------------------------------------------------------
   // parse parameters
